@@ -1,0 +1,27 @@
+{
+  "name": "private-on-chain-trading",
+  "version": "1.0.0",
+  "description": "(Partially) Private On-chain Algorithmic Trading Bot",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@uniswap/sdk-core": "^3.0.0",
+    "@uniswap/v3-sdk": "^3.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ckocaogullar15/private-on-chain-trading.git"
+  },
+  "author": "Ceren Kocaogullar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ckocaogullar15/private-on-chain-trading/issues"
+  },
+  "homepage": "https://github.com/ckocaogullar15/private-on-chain-trading#readme"
+}
