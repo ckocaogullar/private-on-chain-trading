@@ -7,13 +7,14 @@ const hre = require("hardhat");
 
 const config = {
     uniswapV3Factory: '0x1f98431c8ad98523631ae4a59f267346ea31f984',
-    weth: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    token0: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+    token1: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
     defaultFee: '3000',
   }
 
 async function main() {
   const BaseBot = await hre.ethers.getContractFactory("BaseBot");
-  const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.weth, config.defaultFee);
+  const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.token0, config.token1, config.defaultFee);
 
   await baseBot.deployed();
 
