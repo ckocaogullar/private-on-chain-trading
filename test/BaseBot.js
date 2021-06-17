@@ -7,6 +7,7 @@ const config = {
     defaultFee: '3000',
     untilSecondsAgo: '21600',
     numIntervals: '6',
+    minTimeLimit: '6'
   }
   
 // Test fails due to timeout right now...
@@ -15,9 +16,10 @@ describe("BaseBot contract", function() {
     const [owner] = await ethers.getSigners();
 
     const BaseBot = await ethers.getContractFactory("BaseBot");
-    const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.token0, config.token1, config.defaultFee, config.untilSecondsAgo, config.numIntervals);
+    const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.token0, config.token1, config.defaultFee, config.untilSecondsAgo, config.numIntervals, config.minTimeLimit);
 
     const subs = await baseBot.subscribe(owner.address);
     const trade = await baseBot.trade();
   });
+
 });

@@ -34,10 +34,12 @@ module.exports = {
   },
   networks: {
     hardhat: {
+      chainId: 1337,
       forking: {
-        url: "https://eth-mainnet.alchemyapi.io/v2/cBtFGu5T0_EUoamP_xYBrzOfLdNR0_2x"
-      }
-    }
+        enabled: true,
+        url: "https://eth-mainnet.alchemyapi.io/v2/cBtFGu5T0_EUoamP_xYBrzOfLdNR0_2x",
+      },
+    },
   }
   
 };

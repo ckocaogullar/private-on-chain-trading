@@ -27,12 +27,17 @@ contract BaseBot {
     uint24 public immutable defaultFee;
     uint32 public immutable untilSecondsAgo;
     uint32 public immutable numIntervals;
+    uint32 public immutable minTimeLimit;
+    uint256 public currentTradingStartTime;
+    uint
 
     struct Subscriber {
         uint256 amount;
         uint256 balanceToken0;
         uint256 balanceToken1;
     }
+
+    address creator;
 
     mapping(address => Subscriber) subscribers;
 
@@ -42,7 +47,8 @@ contract BaseBot {
         address _token1,
         uint24 _defaultFee,
         uint32 _untilSecondsAgo,
-        uint32 _numIntervals
+        uint32 _numIntervals,
+        uint32 _minTimeLimit
     ) {
         uniswapV3Factory = _uniswapV3Factory;
         token0 = _token0;
@@ -50,6 +56,9 @@ contract BaseBot {
         defaultFee = _defaultFee;
         untilSecondsAgo = _untilSecondsAgo;
         numIntervals = _numIntervals;
+        currentTradingStartTime = block.timestamp;
+        minTimeLimit = _minTimeLimit;
+        creator = msg.sender;
     }
 
     function subscribe(uint256 amount) external payable {
@@ -59,6 +68,12 @@ contract BaseBot {
     }
 
     function trade() public {
+        require(
+            currentTradingStartTime + minTimeLimit < block.timestamp,
+            "Trading already done in the current period."
+        );
+        require(msg.sender == creator, "Only the creator can invoke trading");
+
         uint256 sma = calculateSma();
 
         address poolAddress =
@@ -83,6 +98,8 @@ contract BaseBot {
         } else if (sma < currentPrice) {
             swap(token1, token0, subscribers[msg.sender].amount);
         }
+
+        currentTradingStartTime = block.timestamp;
     }
 
     function swap(

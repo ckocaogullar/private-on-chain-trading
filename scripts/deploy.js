@@ -12,11 +12,21 @@ const config = {
     defaultFee: '3000',
     untilSecondsAgo: '21600',
     numIntervals: '6',
+    minTimeLimit: '6'
   }
 
 async function main() {
+  const [deployer] = await ethers.getSigners();
+
+  console.log(
+    "Deploying contracts with the account:",
+    deployer.address
+  );
+
+  console.log("Account balance:", (await deployer.getBalance()).toString());
+
   const BaseBot = await hre.ethers.getContractFactory("BaseBot");
-  const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.token0, config.token1, config.defaultFee, config.untilSecondsAgo, config.numIntervals);
+  const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.token0, config.token1, config.defaultFee, config.untilSecondsAgo, config.numIntervals, );
 
   await baseBot.deployed();
 
