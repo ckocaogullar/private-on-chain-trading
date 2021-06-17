@@ -25,11 +25,9 @@ contract BaseBot {
     address public immutable token0;
     address public immutable token1;
     uint24 public immutable defaultFee;
-    uint32 public immutable untilSecondsAgo;
-    uint32 public immutable numIntervals;
     uint32 public immutable minTimeLimit;
     uint256 public currentTradingStartTime;
-    uint
+    bool public initialTrade;
 
     struct Subscriber {
         uint256 amount;
@@ -46,19 +44,16 @@ contract BaseBot {
         address _token0,
         address _token1,
         uint24 _defaultFee,
-        uint32 _untilSecondsAgo,
-        uint32 _numIntervals,
         uint32 _minTimeLimit
     ) {
         uniswapV3Factory = _uniswapV3Factory;
         token0 = _token0;
         token1 = _token1;
         defaultFee = _defaultFee;
-        untilSecondsAgo = _untilSecondsAgo;
-        numIntervals = _numIntervals;
-        currentTradingStartTime = block.timestamp;
         minTimeLimit = _minTimeLimit;
+        currentTradingStartTime = block.timestamp;
         creator = msg.sender;
+        initialTrade = false;
     }
 
     function subscribe(uint256 amount) external payable {
@@ -67,15 +62,22 @@ contract BaseBot {
         subscribers[msg.sender].balanceToken1 = 1000;
     }
 
-    function trade() public {
+    function trade(uint32[] memory untilSecondsAgos, uint32[] memory numsIntervals, int32 buySellThreshold) public {
         require(
-            currentTradingStartTime + minTimeLimit < block.timestamp,
+            (currentTradingStartTime + minTimeLimit < block.timestamp || !initialTrade),
             "Trading already done in the current period."
         );
         require(msg.sender == creator, "Only the creator can invoke trading");
-
-        uint256 sma = calculateSma();
-
+        uint256[] memory smas = new uint256[](untilSecondsAgos.length);
+        for(uint32 i = 0; i < untilSecondsAgos.length; i++){
+            uint32 untilSecondsAgo = untilSecondsAgos[i];
+            uint32 numIntervals = numsIntervals[i];
+            smas[i] = calculateSma(untilSecondsAgo, numIntervals);
+            console.log("SMA % is %", i, smas[i]);
+        }
+        
+        
+        
         address poolAddress =
             PoolAddress.computeAddress(
                 uniswapV3Factory,
@@ -83,7 +85,7 @@ contract BaseBot {
             );
 
         int256 twapTick =
-            OracleLibrary.consult(poolAddress, untilSecondsAgo / numIntervals);
+            OracleLibrary.consult(poolAddress, 1);
         uint256 currentPrice =
             OracleLibrary.getQuoteAtTick(
                 int24(twapTick), // can assume safe being result from consult()
@@ -91,15 +93,34 @@ contract BaseBot {
                 token0,
                 token1
             );
+
         console.log("Current price is %", currentPrice);
-        console.log("SMA is %", sma);
-        if (sma > currentPrice) {
+
+        int32 smaComparisons = 0;
+        console.logInt(smaComparisons);
+        for(uint32 i = 0; i < smas.length; i++){
+            if (smas[i] > currentPrice) {
+                smaComparisons += 1;
+                console.logInt(smaComparisons);
+            } else if (smas[i] < currentPrice) {
+                smaComparisons -= 1;
+                console.logInt(smaComparisons);
+            }
+        }
+        console.log("SMA comparisons resulted in");
+        console.logInt(smaComparisons);
+        console.log("Threshold for buying or selling is");
+        console.logInt(buySellThreshold);
+        if(smaComparisons <= - buySellThreshold){
+            console.log("Buying token1");
             swap(token0, token1, subscribers[msg.sender].amount);
-        } else if (sma < currentPrice) {
+        } else if (smaComparisons >= buySellThreshold){
+            console.log("Selling token1");
             swap(token1, token0, subscribers[msg.sender].amount);
         }
 
         currentTradingStartTime = block.timestamp;
+        initialTrade = true;
     }
 
     function swap(
@@ -119,12 +140,13 @@ contract BaseBot {
             subscribers[msg.sender].balanceToken1 -= amount;
             subscribers[msg.sender].balanceToken0 += amount;
         }
+        console.log("Balance of token0 is % , token1 is %", subscribers[msg.sender].balanceToken0, subscribers[msg.sender].balanceToken1);
     }
 
     /// @notice Given a time period to look back into and the number of data points, calculates the
     /// Simple Moving Average (SMA) for token1 in terms of token0
     /// @return sma SMA, i.e. average of a number of past prices
-    function calculateSma() public returns (uint256 sma) {
+    function calculateSma(uint32 untilSecondsAgo, uint32 numIntervals) public returns (uint256 sma) {
         // Calculate the time intervals to look behind untilSecondsAgo with numIntervals
         // Put this information into secondAgos for feeding into pool observation later
         uint32 period = SafeMath32.div(untilSecondsAgo, numIntervals);
