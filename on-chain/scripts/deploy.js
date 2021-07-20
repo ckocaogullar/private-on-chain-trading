@@ -26,7 +26,7 @@ async function main() {
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const BaseBot = await hre.ethers.getContractFactory("BaseBot");
-  const baseBot = await BaseBot.deploy(config.uniswapV3Factory, config.token0, config.token1, config.defaultFee, config.untilSecondsAgo, config.numIntervals, );
+  const baseBot = await BaseBot.deploy();
 
   await baseBot.deployed();
 
