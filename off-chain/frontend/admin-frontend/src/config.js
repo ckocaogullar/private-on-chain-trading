@@ -1,4 +1,4 @@
-// Change the CONTRACT_ADDRESS and ABI appropriately, as described in the
+// Change the CONTRACT_ADDRESS and ABI appropriately, as described in t
 
 export const CONTRACT_ADDRESS = '0x16160Ea547F5C2DcE74F68d362166fc25caA8Ba7'
 
