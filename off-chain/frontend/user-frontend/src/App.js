@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Web3 from 'web3'
 import './App.css'
-import { ABI, CONTRACT_ADDRESS } from './config'
+import { ABI, CONTRACT_ADDRESS } from './bot_config'
 
 function App(props){
   const [account, setAccount] = useState(null);

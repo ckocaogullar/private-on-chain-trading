@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import Web3 from 'web3'
 import './App.css'
-import { ABI, CONTRACT_ADDRESS } from './config'
+import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
+import { VERIFIER_ABI, VERIFIER_CONTRACT_ADDRESS } from './verifier_config'
+import proof from './proof.json';
 
 
 function App(props) {
   const [account, setAccount] = useState(null);
   const [subscribedUser, setSubscribedUser] = useState();
-  const [contract, setContract] = useState(null);
+  const [botContract, setBotContract] = useState(null);
+  const [verifierContract, setVerifierContract] = useState(null);
 
 
   // load blockchain data in initial render
@@ -15,24 +18,25 @@ function App(props) {
     const web3 = new Web3(new Web3.providers.WebsocketProvider("ws://localhost:8545"));
     const accounts = await web3.eth.getAccounts();
     setAccount(accounts[0]);
-    const ethContract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
-    console.log(ethContract);
-    setContract(ethContract);
+    const botContract = new web3.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
+    console.log(botContract);
+    setBotContract(botContract);
+    const verifierContract = new web3.eth.Contract(VERIFIER_ABI, VERIFIER_CONTRACT_ADDRESS);
+    console.log(verifierContract);
+    setVerifierContract(verifierContract);
   }, []);
 
   useEffect(() => {
-    if (contract === null || account === null) return;
-
+    if (botContract === null || account === null) return;
     const subscribeUser = async (user) => {
-      const subUser = await contract.methods.subscribeUser(user).send({ from: account })
+      const subUser = await botContract.methods.subscribeUser(user).send({ from: account })
         .on('receipt', function (receipt) {
-          // receipt example
           console.log(receipt)
         })
       setSubscribedUser(subUser);
     }
 
-    contract.events.UserSubscribed({}, (error, event) => {
+    botContract.events.UserSubscribed({}, (error, event) => {
       console.log(event)
       if (error) {
         console.log('Could not get event ' + error)
@@ -41,13 +45,22 @@ function App(props) {
         console.log('Event caught: ' + event.event)
       }
     })
-  }, [contract, account])
+  }, [botContract, account])
+
+  const testVerification = async (path) => {
+    //const proof = JSON.parse(fs.readFileSync("proof.json"))
+    await verifierContract.methods.verifyTx(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({ from: account })
+    .on('receipt', function (receipt) {
+      console.log(receipt)
+    })
+
+  }
 
   return (
     <div className="container">
       <h1>Hello, Admin!</h1>
       <p>Your account: {account}</p>
-      
+      <button onClick={()=>testVerification()}>Test the verification</button>
     </div>
   );
 }
