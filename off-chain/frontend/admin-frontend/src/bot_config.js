@@ -1,8 +1,8 @@
-// Change the CONTRACT_ADDRESS and ABI appropriately, as described in t
+// Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const CONTRACT_ADDRESS = '0x16160Ea547F5C2DcE74F68d362166fc25caA8Ba7'
+export const BOT_CONTRACT_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 
-export const ABI = [
+export const BOT_ABI = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
