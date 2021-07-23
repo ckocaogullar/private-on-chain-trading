@@ -10,24 +10,64 @@ function App(props) {
   const [account, setAccount] = useState(null);
   const [subscribedUser, setSubscribedUser] = useState();
   const [botContract, setBotContract] = useState(null);
+  const [botSocket, setBotSocket] = useState(null);
   const [verifierContract, setVerifierContract] = useState(null);
-
-
+  const [web3Socket, setWeb3Socket] = useState();
+  const [web3, setWeb3] = useState();
   // load blockchain data in initial render
   useEffect(async () => {
-    const web3 = new Web3(new Web3.providers.WebsocketProvider("ws://localhost:8545"));
-    const accounts = await web3.eth.getAccounts();
-    setAccount(accounts[0]);
-    const botContract = new web3.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
-    console.log(botContract);
-    setBotContract(botContract);
-    const verifierContract = new web3.eth.Contract(VERIFIER_ABI, VERIFIER_CONTRACT_ADDRESS);
-    console.log(verifierContract);
-    setVerifierContract(verifierContract);
+    // Modern dapp browsers...
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      try {
+        // Create two connections: one using HTTPS (for calling methods), the other using WebSocket (for subscribing to events)
+        const web3 = new Web3(window.web3.currentProvider);
+        setWeb3(web3)
+        const web3Socket = new Web3("wss://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22");
+        setWeb3Socket(web3Socket)
+        
+
+        // Load the contract using both HTTPS and WebSocket connections
+        const botContract = new web3.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
+        console.log(botContract);
+        setBotContract(botContract);
+        const botSocket = new web3.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
+        console.log(botSocket);
+        setBotSocket(botSocket)
+        const verifierContract = new web3.eth.Contract(VERIFIER_ABI, VERIFIER_CONTRACT_ADDRESS);
+        console.log(verifierContract);
+        setVerifierContract(verifierContract);
+        // Request account access if needed and get the accounts
+        await window.ethereum.enable();
+        const accounts = await web3.eth.getAccounts().then(console.log);
+        setAccount(accounts[0])
+        console.log('Im here')
+        
+      } catch (error) {
+        // User denied account access...
+      }
+    }
+    // Legacy dapp browsers...
+    else if (window.web3) {
+      window.web3 = new Web3(web3.currentProvider);
+      console.log("You are using a legacy dapp browser. Please switch to a modern dapp browser, e.g. Brave")
+    }
+    // Non-dapp browsers...
+    else {
+      console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
+    }
+    // //const web3 = new Web3(new Web3.providers.WebsocketProvider("wss://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"));
+    // const web3 = new Web3("https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22");
+    // await window.ethereum.enable().then(console.log);
+    // const accounts = await web3.eth.getAccounts().then(console.log);
   }, []);
 
   useEffect(() => {
-    if (botContract === null || account === null) return;
+    if (botContract === null || account === null) {
+      console.log('jumped here')
+      return;
+    }
+    console.log('got the account: ', account)
     const subscribeUser = async (user) => {
       const subUser = await botContract.methods.subscribeUser(user).send({ from: account })
         .on('receipt', function (receipt) {
@@ -36,7 +76,7 @@ function App(props) {
       setSubscribedUser(subUser);
     }
 
-    botContract.events.UserSubscribed({}, (error, event) => {
+    botSocket.events.UserSubscribed({}, (error, event) => {
       console.log(event)
       if (error) {
         console.log('Could not get event ' + error)
@@ -69,10 +109,19 @@ function App(props) {
   }
 
   const test = async () => {
+    botSocket.events.TestEvent({}, (error, event) => {
+      if (error) {
+        console.log('Could not get event ' + error)
+      } else {
+        console.log('Event caught: ' + event.event)
+      }
+    })
+    
     await botContract.methods.test().send({from: account})
     .on('receipt', function (receipt) {
       console.log(receipt)
     })
+    
   }
 
   return (

@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0x4826533B4897376654Bb4d4AD88B7faFD0C98528'
+export const BOT_CONTRACT_ADDRESS = '0x01fc97df27A8FD8706E9482B35CAA9De70D0499a'
 
 export const BOT_ABI = [
   {
@@ -40,6 +40,19 @@ export const BOT_ABI = [
       }
     ],
     "name": "SubscriptionConfirmed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "testNum",
+        "type": "uint256"
+      }
+    ],
+    "name": "TestEvent",
     "type": "event"
   },
   {

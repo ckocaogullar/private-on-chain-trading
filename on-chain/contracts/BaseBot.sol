@@ -42,6 +42,7 @@ contract BaseBot {
 
     event UserSubscribed(address subscriberAddress);
     event SubscriptionConfirmed(address userAddress);
+    event TestEvent(uint testNum);
 
     struct Subscriber {
         uint256 amount;
@@ -155,6 +156,7 @@ contract BaseBot {
 
     function test() public returns(uint32 val){
         val = 1111;
+        emit TestEvent(1234567);
     }
 
     function getCurrentPrice() public returns (uint256 currentPrice) {
@@ -164,6 +166,7 @@ contract BaseBot {
                 PoolAddress.getPoolKey(token0, token1, defaultFee)
             );
         }
+        console.log(poolAddress);
         int256 twapTick = OracleLibrary.consult(poolAddress, 1);
         currentPrice = OracleLibrary.getQuoteAtTick(
             int24(twapTick), // can assume safe being result from consult()
@@ -171,8 +174,6 @@ contract BaseBot {
             token0,
             token1
         );
-
-        console.log("Current price is %", currentPrice);
     }
 
     function swap(
