@@ -47,13 +47,32 @@ function App(props) {
     })
   }, [botContract, account])
 
-  const testVerification = async (path) => {
-    //const proof = JSON.parse(fs.readFileSync("proof.json"))
+  const testVerification = async () => {
     await verifierContract.methods.verifyTx(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({ from: account })
     .on('receipt', function (receipt) {
       console.log(receipt)
     })
+  }
 
+  const getCurrentPrice = async () => {
+    await botContract.methods.getCurrentPrice().send({from: account})
+    .on('receipt', function (receipt) {
+      console.log(receipt)
+    })
+  }
+
+  const getBollinger = async (numOfPeriods, periodLength) => {
+    await botContract.methods.bollinger(numOfPeriods, periodLength).send({from: account})
+    .on('receipt', function (receipt) {
+      console.log(receipt)
+    })
+  }
+
+  const test = async () => {
+    await botContract.methods.test().send({from: account})
+    .on('receipt', function (receipt) {
+      console.log(receipt)
+    })
   }
 
   return (
@@ -61,6 +80,9 @@ function App(props) {
       <h1>Hello, Admin!</h1>
       <p>Your account: {account}</p>
       <button onClick={()=>testVerification()}>Test the verification</button>
+      <button onClick={()=>getCurrentPrice()}>Get the current price</button>
+      <button onClick={()=>getBollinger(10, 300)}>Get the Bollinger</button>
+      <button onClick={()=>test()}>Test</button>
     </div>
   );
 }

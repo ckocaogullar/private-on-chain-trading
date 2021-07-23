@@ -40,17 +40,17 @@ module.exports = {
     ]
   },
   networks: {
-    ropsten: {
-      url: `https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22`,
-      accounts: [`0x${ROPSTEN_PRIVATE_KEY1}`, `0x${ROPSTEN_PRIVATE_KEY2}`, ],
-    },
-    // hardhat: {
-    //   chainId: 1337,
-    //   forking: {
-    //     enabled: true,
-    //     url: "https://eth-mainnet.alchemyapi.io/v2/cBtFGu5T0_EUoamP_xYBrzOfLdNR0_2x",
-    //   },
+    // ropsten: {
+    //   url: `ws://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22`,
+    //   accounts: [`0x${ROPSTEN_PRIVATE_KEY1}`, `0x${ROPSTEN_PRIVATE_KEY2}`, ],
     // },
+    hardhat: {
+      chainId: 1337,
+      forking: {
+        enabled: true,
+        url: "https://eth-mainnet.alchemyapi.io/v2/cBtFGu5T0_EUoamP_xYBrzOfLdNR0_2x",
+      },
+    },
   }
   
 };
