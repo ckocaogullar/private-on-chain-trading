@@ -17,6 +17,9 @@ function App(props) {
   // load blockchain data in initial render
   useEffect(async () => {
     // Modern dapp browsers...
+    callApi()
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       try {
@@ -84,6 +87,14 @@ function App(props) {
       }
     })
   }, [account])
+
+  const callApi = async () => {
+    const response = await fetch('/api/hello');
+    const body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    
+    return body;
+  };
 
   const testVerification = async () => {
     await verifierContract.methods.verifyTx(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({ from: account })
