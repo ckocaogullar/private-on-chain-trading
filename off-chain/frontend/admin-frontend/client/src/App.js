@@ -17,9 +17,6 @@ function App(props) {
   // load blockchain data in initial render
   useEffect(async () => {
     // Modern dapp browsers...
-    callApi()
-      .then(res => console.log(res))
-      .catch(err => console.log(err));
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       try {
@@ -149,6 +146,7 @@ function App(props) {
     })
   }
 
+
   // Subscribe to the BollingerIndicators event
   // Call calculateIndicators function
   // Once you catch the BollingerIndicators event, make the if-else comparisons with your private parameters
@@ -162,6 +160,9 @@ function App(props) {
       <button onClick={()=>getCurrentPrice()}>Get the current price</button>
       <button onClick={()=>getBollinger(10, 300)}>Get the Bollinger</button>
       <button onClick={()=>test()}>Test</button>
+      <button onClick={()=>callApi()
+      .then(res => console.log(res))
+      .catch(err => console.log(err))}>Test Backend</button>
     </div>
   );
 }
