@@ -19,6 +19,8 @@ contract BaseBot {
 
     address admin;
 
+    address verifierAddress = 0x445A7DC5a6fcBae2789450d3254897bDb224E812;
+
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     IQuoter public constant quoter =
@@ -43,6 +45,8 @@ contract BaseBot {
     event UserSubscribed(address subscriberAddress);
     event SubscriptionConfirmed(address userAddress);
     event TestEvent(uint testNum);
+    event ProofVerified(bool verified);
+    event BollingerIndicators(uint256 upperBollingerBand, uint256 lowerBollingerBand)
 
     struct Subscriber {
         uint256 amount;
@@ -95,17 +99,23 @@ contract BaseBot {
 
     // Called by the admin to make trading decisions.
     // Calls the functions for separate trading algorithms
-    function trade(uint32 numOfPeriods, uint32 periodLength) public {
+    //function trade(uint32 numOfPeriods, uint32 periodLength) public {
+    function trade(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[2] memory input) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
         require(msg.sender == admin, "Only the admin can invoke trading");
         // The bot admin selects the trading algorithms secretly in the following way:
         // It calls the algorithms in all cases
         // If the first parameter passed to these functions are negative, this is an indicator that this algorithm is going to be used or not
         // This is checked in the algorithm function and the algorithm proceeds or does not proceed accordingly
-        bollinger(numOfPeriods, periodLength);
-
+        //bollinger(numOfPeriods, periodLength);
+        bool verified = IVerifier(verifierAddress).verifyTx(a, b, c, input);
+        emit ProofVerified(verified);
         // Update the value of the amount of the money in the pool after trading. Of course, this should happen after
         // the trades are executed externally
+    }
+
+    function calculateIndicators(uint32 numOfPeriods, uint32 periodLength) public {
+        bollinger(numOfPeriods, periodLength);
     }
 
     // --------------------------- TRADING ALGORITHM: BOLLINGER ---------------------------
@@ -121,11 +131,9 @@ contract BaseBot {
     function bollinger(uint32 numOfPeriods, uint32 periodLength)
         public
         returns (
-            uint256[] memory pastPrices,
-            uint256 movingAverage,
-            uint256 stdDev
+             uint256 upperBollingerBand,  uint256 lowerBollingerBand
         )
-    {
+        {
         require(
             admin == msg.sender,
             "Only the admin can invoke the trading algorithm"
@@ -142,8 +150,9 @@ contract BaseBot {
         //      σ[TP,n]=Standard Deviation over last n periods of TP
         (movingAverage, pastPrices) = sma(numOfPeriods, periodLength);
         stdDev = standardDev(pastPrices, movingAverage);
-        // upperBollingerBand = movingAverage + 2 * stdDev;
-        // lowerBollingerBand = movingAverage - 2 * stdDev;
+        upperBollingerBand = movingAverage + 2 * stdDev;
+        lowerBollingerBand = movingAverage - 2 * stdDev;
+        emit BollingerIndicators(upperBollingerBand, lowerBollingerBand);
         // if (currentPrice > (upperBollingerBand / 100) * (100 - bollingerUpperBoundPct)) {
         //     console.log("Selling token1");
         //     //swap(token1, token0, subscribers[msg.sender].amount);
@@ -152,11 +161,6 @@ contract BaseBot {
         //     //swap(token0, token1, subscribers[msg.sender].amount);
         // }
         // else: Hold
-    }
-
-    function test() public returns(uint32 val){
-        val = 1111;
-        emit TestEvent(1234567);
     }
 
     function getCurrentPrice() public returns (uint256 currentPrice) {
@@ -277,3 +281,11 @@ contract BaseBot {
         }
     }
 }
+
+interface IVerifier {
+    function verifyTx(
+            uint[2] memory a,
+            uint[2][2] memory b,
+            uint[2] memory c, uint[2] memory input
+        ) external view returns (bool r);
+        }

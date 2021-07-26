@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0x01fc97df27A8FD8706E9482B35CAA9De70D0499a'
+export const BOT_CONTRACT_ADDRESS = '0xe4c93A20048aB5D45068D557a43a23716bd2D257'
 
 export const BOT_ABI = [
   {
@@ -28,6 +28,19 @@ export const BOT_ABI = [
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "verified",
+        "type": "bool"
+      }
+    ],
+    "name": "ProofVerified",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -279,14 +292,24 @@ export const BOT_ABI = [
   {
     "inputs": [
       {
-        "internalType": "uint32",
-        "name": "numOfPeriods",
-        "type": "uint32"
+        "internalType": "uint256[2]",
+        "name": "a",
+        "type": "uint256[2]"
       },
       {
-        "internalType": "uint32",
-        "name": "periodLength",
-        "type": "uint32"
+        "internalType": "uint256[2][2]",
+        "name": "b",
+        "type": "uint256[2][2]"
+      },
+      {
+        "internalType": "uint256[2]",
+        "name": "c",
+        "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint256[2]",
+        "name": "input",
+        "type": "uint256[2]"
       }
     ],
     "name": "trade",
