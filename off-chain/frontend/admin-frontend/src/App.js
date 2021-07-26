@@ -37,9 +37,10 @@ function App(props) {
         const verifierContract = new web3.eth.Contract(VERIFIER_ABI, VERIFIER_CONTRACT_ADDRESS);
         console.log(verifierContract);
         setVerifierContract(verifierContract);
+
         // Request account access if needed and get the accounts
         await window.ethereum.enable();
-        const accounts = await web3.eth.getAccounts().then(console.log);
+        const accounts = await web3.eth.getAccounts()
         setAccount(accounts[0])
         console.log('Im here')
         
@@ -56,14 +57,11 @@ function App(props) {
     else {
       console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
     }
-    // //const web3 = new Web3(new Web3.providers.WebsocketProvider("wss://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"));
-    // const web3 = new Web3("https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22");
-    // await window.ethereum.enable().then(console.log);
-    // const accounts = await web3.eth.getAccounts().then(console.log);
+
   }, []);
 
   useEffect(() => {
-    if (botContract === null || account === null) {
+    if (account === null) {
       console.log('jumped here')
       return;
     }
@@ -85,7 +83,7 @@ function App(props) {
         console.log('Event caught: ' + event.event)
       }
     })
-  }, [botContract, account])
+  }, [account])
 
   const testVerification = async () => {
     await verifierContract.methods.verifyTx(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({ from: account })
@@ -114,15 +112,36 @@ function App(props) {
         console.log('Could not get event ' + error)
       } else {
         console.log('Event caught: ' + event.event)
+        testVerificationContract()
       }
     })
-    
+
     await botContract.methods.test().send({from: account})
     .on('receipt', function (receipt) {
+      console.log('Test receipt:')
       console.log(receipt)
     })
-    
   }
+
+  const testVerificationContract = async () => {
+    botSocket.events.ProofVerified({}, (error,event) => {
+      if (error) {
+        console.log('Could not get event ' + error)
+      } else {
+        console.log('Event caught: ' + event.event)
+      }
+    })
+    await botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({from:account})
+    .on('receipt', function(receipt) {
+      console.log('Trade receipt:')
+      console.log(receipt)
+    })
+  }
+
+  // Subscribe to the BollingerIndicators event
+  // Call calculateIndicators function
+  // Once you catch the BollingerIndicators event, make the if-else comparisons with your private parameters
+  // Whichever signal it fits (buy or hold), use public and private parameters there to generate a proof accordingly
 
   return (
     <div className="container">
