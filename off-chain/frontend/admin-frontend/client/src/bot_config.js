@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0xe4c93A20048aB5D45068D557a43a23716bd2D257'
+export const BOT_CONTRACT_ADDRESS = '0xD1071063D7C70678100F21B87c911C2d85249eA4'
 
 export const BOT_ABI = [
   {
@@ -28,6 +28,31 @@ export const BOT_ABI = [
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "upperBollingerBand",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lowerBollingerBand",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "currentPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "BollingerIndicators",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -74,6 +99,31 @@ export const BOT_ABI = [
       {
         "indexed": false,
         "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "tokenOut",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TradeComplete",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "subscriberAddress",
         "type": "address"
       }
@@ -97,21 +147,34 @@ export const BOT_ABI = [
     "name": "bollinger",
     "outputs": [
       {
-        "internalType": "uint256[]",
-        "name": "pastPrices",
-        "type": "uint256[]"
-      },
-      {
         "internalType": "uint256",
-        "name": "movingAverage",
+        "name": "upperBollingerBand",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "stdDev",
+        "name": "lowerBollingerBand",
         "type": "uint256"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "numOfPeriods",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "periodLength",
+        "type": "uint32"
+      }
+    ],
+    "name": "calculateIndicators",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -253,13 +316,7 @@ export const BOT_ABI = [
   {
     "inputs": [],
     "name": "test",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "val",
-        "type": "uint32"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -308,8 +365,13 @@ export const BOT_ABI = [
       },
       {
         "internalType": "uint256[2]",
-        "name": "input",
+        "name": "inputs",
         "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint16",
+        "name": "buySellFlag",
+        "type": "uint16"
       }
     ],
     "name": "trade",
