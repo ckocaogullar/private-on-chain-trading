@@ -1,0 +1,24 @@
+{
+  "inputs": [
+    {
+      "name": "currentPrice",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "upperBollingerBand",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "upperBoundPercentage",
+      "public": false,
+      "type": "field"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "bool"
+    }
+  ]
+}

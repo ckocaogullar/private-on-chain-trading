@@ -15,12 +15,17 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const Verifier = await hre.ethers.getContractFactory("Verifier");
-  const verifier = await Verifier.deploy();
+  const BuyVerifier = await hre.ethers.getContractFactory("contracts/BuyVerifier.sol:Verifier");
+  const buyVerifier = await BuyVerifier.deploy();
 
-  await verifier.deployed();
+  const SellVerifier = await hre.ethers.getContractFactory("contracts/SellVerifier.sol:Verifier");
+  const sellVerifier = await SellVerifier.deploy();
 
-  console.log("Verifier deployed to:", verifier.address);
+  await buyVerifier.deployed();
+  await sellVerifier.deployed();
+
+  console.log("BuyVerifier deployed to:", buyVerifier.address);
+  console.log("SellVerifier deployed to:", sellVerifier.address);
 }
 
 // Hardhat-recommended pattern

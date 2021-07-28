@@ -13,18 +13,30 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./libraries/SafeUint128.sol";
 import "./libraries/SafeMath32.sol";
 
+
 contract BaseBot {
     // Administrator of the trading bot
     using SafeMath for uint256;
 
     address admin;
 
-    address verifierAddress = 0x445A7DC5a6fcBae2789450d3254897bDb224E812;
+    address buyVerifierAddress = 0x7d7cFB1442C8739466EEAfcf2a268cF95E14aF0d;
+    address sellVerifierAddress = 0xbE304f852d64Fb952cbBb761a7862Fb166212339;
 
+    // Values for ropsten network
+    //
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     IQuoter public constant quoter =
         IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
+    
+
+    // Values for the Mainnet forking
+    //
+    // ISwapRouter public constant uniswapRouter =
+    //     ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    // IQuoter public constant quoter =
+    //     IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
 
     address public immutable uniswapV3Factory;
     address public immutable token0;
@@ -46,7 +58,8 @@ contract BaseBot {
     event SubscriptionConfirmed(address userAddress);
     event TestEvent(uint testNum);
     event ProofVerified(bool verified);
-    event BollingerIndicators(uint256 upperBollingerBand, uint256 lowerBollingerBand)
+    event BollingerIndicators(uint256 upperBollingerBand, uint256 lowerBollingerBand, uint256 currentPrice);
+    event TradeComplete(address tokenIn, address tokenOut, uint256 amount);
 
     struct Subscriber {
         uint256 amount;
@@ -92,6 +105,10 @@ contract BaseBot {
         emit SubscriptionConfirmed(user);
     }
 
+    function test() external {
+        emit TestEvent(12345);
+    }
+
     // ------------------------------- TRADING -------------------------------
 
     // --------------------------- THE MAIN TRADING FUNCTION ---------------------------
@@ -99,19 +116,31 @@ contract BaseBot {
 
     // Called by the admin to make trading decisions.
     // Calls the functions for separate trading algorithms
-    //function trade(uint32 numOfPeriods, uint32 periodLength) public {
-    function trade(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[2] memory input) public {
+    // Public parameters:
+    // @param a the first parameter of the proof
+    // @param b the second parameter of the proof
+    // @param c the third parameter of the proof
+    // @param inputs of the proof
+    // @param buySellFlag indicates buy or sell signal. 0 indicates BUY, 1 indicates SELL, 2 indicates HOLD
+    function trade(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[2] memory inputs, uint16 buySellFlag) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
         require(msg.sender == admin, "Only the admin can invoke trading");
-        // The bot admin selects the trading algorithms secretly in the following way:
-        // It calls the algorithms in all cases
-        // If the first parameter passed to these functions are negative, this is an indicator that this algorithm is going to be used or not
-        // This is checked in the algorithm function and the algorithm proceeds or does not proceed accordingly
-        //bollinger(numOfPeriods, periodLength);
-        bool verified = IVerifier(verifierAddress).verifyTx(a, b, c, input);
-        emit ProofVerified(verified);
-        // Update the value of the amount of the money in the pool after trading. Of course, this should happen after
-        // the trades are executed externally
+
+            if(buySellFlag == 0){
+                // BUY
+                if(IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs)){
+                    emit ProofVerified(true);
+                    swap(token0, token1, subscribers[msg.sender].amount);
+                    emit TradeComplete(token0, token1, subscribers[msg.sender].amount);
+                    }
+            } else if(buySellFlag == 1){
+                // SELL
+                if(IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs)){
+                    emit ProofVerified(true);
+                    swap(token1, token0, subscribers[msg.sender].amount);
+                    emit TradeComplete(token1, token0, subscribers[msg.sender].amount);
+                }
+            } // else HOLD
     }
 
     function calculateIndicators(uint32 numOfPeriods, uint32 periodLength) public {
@@ -120,10 +149,6 @@ contract BaseBot {
 
     // --------------------------- TRADING ALGORITHM: BOLLINGER ---------------------------
     // @notif Buy if (price < lower Bolliger band), sell if (price > upper Bolliger band) within certain thresholds
-    //
-    // Public parameters:
-    // @param numOfPeriods number of periods, same as explained above
-    // @param periodLength length of the periods for both EMAs, same as explained above
     //
     // Private parameters:
     // @private_param bollingerUpperBoundPct percentage the current price should be near the upper Bollinger band to trigger a sell signal
@@ -140,6 +165,12 @@ contract BaseBot {
         );
         // If the first parameter is negative, this is an indicator that this algorithm is going to be used or not
         require(numOfPeriods > 0);
+        if (poolAddress == address(0x0)) {
+            poolAddress = PoolAddress.computeAddress(
+                uniswapV3Factory,
+                PoolAddress.getPoolKey(token0, token1, defaultFee)
+            );
+        }
         // Upper Bollinger Band=MA(TP,n) + m * σ[TP,n]
         // Lower Bollinger Band=MA(TP,n) − m * σ[TP,n]
         //      where:
@@ -148,11 +179,13 @@ contract BaseBot {
         //      n=Number of days in smoothing period (typically 20)
         //      m=Number of standard deviations (typically 2)
         //      σ[TP,n]=Standard Deviation over last n periods of TP
-        (movingAverage, pastPrices) = sma(numOfPeriods, periodLength);
-        stdDev = standardDev(pastPrices, movingAverage);
+        (uint256 movingAverage, uint256[] memory pastPrices) = sma(numOfPeriods, periodLength);
+        uint256 stdDev = standardDev(pastPrices, movingAverage);
         upperBollingerBand = movingAverage + 2 * stdDev;
         lowerBollingerBand = movingAverage - 2 * stdDev;
-        emit BollingerIndicators(upperBollingerBand, lowerBollingerBand);
+        // emit the two indicators used for the Bollinger trading algorithm as well as 
+        // the current price (at the moment of observing prices within the sma function)
+        emit BollingerIndicators(upperBollingerBand, lowerBollingerBand, pastPrices[0]);
         // if (currentPrice > (upperBollingerBand / 100) * (100 - bollingerUpperBoundPct)) {
         //     console.log("Selling token1");
         //     //swap(token1, token0, subscribers[msg.sender].amount);
@@ -170,6 +203,7 @@ contract BaseBot {
                 PoolAddress.getPoolKey(token0, token1, defaultFee)
             );
         }
+        console.log('poolAddress: ');
         console.log(poolAddress);
         int256 twapTick = OracleLibrary.consult(poolAddress, 1);
         currentPrice = OracleLibrary.getQuoteAtTick(
