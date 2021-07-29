@@ -13,30 +13,28 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./libraries/SafeUint128.sol";
 import "./libraries/SafeMath32.sol";
 
-
 contract BaseBot {
     // Administrator of the trading bot
     using SafeMath for uint256;
 
     address admin;
 
-    address buyVerifierAddress = 0x7d7cFB1442C8739466EEAfcf2a268cF95E14aF0d;
-    address sellVerifierAddress = 0xbE304f852d64Fb952cbBb761a7862Fb166212339;
+    address buyVerifierAddress = 0xD3afFFe33f5Fa62b2C6bc2655cd7a7F63d1F9081;
+    address sellVerifierAddress = 0xe702765d1a7f828AAC83C3f7CE49b2c1B9F397C2;
 
     // Values for ropsten network
-    //
-    ISwapRouter public constant uniswapRouter =
-        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    IQuoter public constant quoter =
-        IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
-    
-
-    // Values for the Mainnet forking
     //
     // ISwapRouter public constant uniswapRouter =
     //     ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     // IQuoter public constant quoter =
     //     IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
+
+    // Values for the Mainnet forking
+    //
+    ISwapRouter public constant uniswapRouter =
+        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    IQuoter public constant quoter =
+        IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
 
     address public immutable uniswapV3Factory;
     address public immutable token0;
@@ -56,10 +54,14 @@ contract BaseBot {
 
     event UserSubscribed(address subscriberAddress);
     event SubscriptionConfirmed(address userAddress);
-    event TestEvent(uint testNum);
+    event TestEvent(uint256 testNum);
     event ProofVerified(bool verified);
-    event BollingerIndicators(uint256 upperBollingerBand, uint256 lowerBollingerBand, uint256 currentPrice);
-    event TradeComplete(address tokenIn, address tokenOut, uint256 amount);
+    event BollingerIndicators(
+        uint256 upperBollingerBand,
+        uint256 lowerBollingerBand,
+        uint256 currentPrice
+    );
+    event TradeComplete(uint32 flag);
 
     struct Subscriber {
         uint256 amount;
@@ -79,7 +81,6 @@ contract BaseBot {
         token1 = _token1;
         defaultFee = _defaultFee;
         admin = msg.sender;
-
     }
 
     // ------------------------------- SUBSCRIPTION -------------------------------
@@ -122,29 +123,50 @@ contract BaseBot {
     // @param c the third parameter of the proof
     // @param inputs of the proof
     // @param buySellFlag indicates buy or sell signal. 0 indicates BUY, 1 indicates SELL, 2 indicates HOLD
-    function trade(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[2] memory inputs, uint16 buySellFlag) public {
+    function trade(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[3] memory inputs,
+        uint16 buySellFlag
+    ) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
         require(msg.sender == admin, "Only the admin can invoke trading");
 
-            if(buySellFlag == 0){
-                // BUY
-                if(IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs)){
-                    emit ProofVerified(true);
-                    swap(token0, token1, subscribers[msg.sender].amount);
-                    emit TradeComplete(token0, token1, subscribers[msg.sender].amount);
-                    }
-            } else if(buySellFlag == 1){
-                // SELL
-                if(IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs)){
-                    emit ProofVerified(true);
-                    swap(token1, token0, subscribers[msg.sender].amount);
-                    emit TradeComplete(token1, token0, subscribers[msg.sender].amount);
-                }
-            } // else HOLD
+        if (buySellFlag == 0) {
+            // BUY
+            if (IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs)) {
+                emit ProofVerified(true);
+                emit TradeComplete(
+                    0
+                );
+            } else {
+                emit ProofVerified(true);
+                emit TradeComplete(
+                    999
+                );
+            }
+        } else if (buySellFlag == 1) {
+            // SELL
+            if (IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs)) {
+                emit ProofVerified(true);
+                swap(token1, token0, subscribers[msg.sender].amount);
+                emit TradeComplete(
+                    1
+                );
+            } else {
+                emit ProofVerified(true);
+                emit TradeComplete(
+                    999
+                );
+            }
+        } // else HOLD
     }
 
-    function calculateIndicators(uint32 numOfPeriods, uint32 periodLength) public {
-        bollinger(numOfPeriods, periodLength);
+    function calculateIndicators(uint32 numOfPeriods, uint32 periodLength)
+        public
+    {
+        bollinger(numOfPeriods, periodLength);   
     }
 
     // --------------------------- TRADING ALGORITHM: BOLLINGER ---------------------------
@@ -155,10 +177,8 @@ contract BaseBot {
     // @private_param bollingerLowerBoundPct percentage the current price should be near the lower Bollinger band to trigger a buy signal
     function bollinger(uint32 numOfPeriods, uint32 periodLength)
         public
-        returns (
-             uint256 upperBollingerBand,  uint256 lowerBollingerBand
-        )
-        {
+        returns (uint256 upperBollingerBand, uint256 lowerBollingerBand)
+    {
         require(
             admin == msg.sender,
             "Only the admin can invoke the trading algorithm"
@@ -179,13 +199,20 @@ contract BaseBot {
         //      n=Number of days in smoothing period (typically 20)
         //      m=Number of standard deviations (typically 2)
         //      σ[TP,n]=Standard Deviation over last n periods of TP
-        (uint256 movingAverage, uint256[] memory pastPrices) = sma(numOfPeriods, periodLength);
+        (uint256 movingAverage, uint256[] memory pastPrices) = sma(
+            numOfPeriods,
+            periodLength
+        );
         uint256 stdDev = standardDev(pastPrices, movingAverage);
         upperBollingerBand = movingAverage + 2 * stdDev;
         lowerBollingerBand = movingAverage - 2 * stdDev;
-        // emit the two indicators used for the Bollinger trading algorithm as well as 
+        // emit the two indicators used for the Bollinger trading algorithm as well as
         // the current price (at the moment of observing prices within the sma function)
-        emit BollingerIndicators(upperBollingerBand, lowerBollingerBand, pastPrices[0]);
+        emit BollingerIndicators(
+            upperBollingerBand,
+            lowerBollingerBand,
+            pastPrices[0]
+        );
         // if (currentPrice > (upperBollingerBand / 100) * (100 - bollingerUpperBoundPct)) {
         //     console.log("Selling token1");
         //     //swap(token1, token0, subscribers[msg.sender].amount);
@@ -203,9 +230,8 @@ contract BaseBot {
                 PoolAddress.getPoolKey(token0, token1, defaultFee)
             );
         }
-        console.log('poolAddress: ');
-        console.log(poolAddress);
-        int256 twapTick = OracleLibrary.consult(poolAddress, 1);
+        int256 twapTick = OracleLibrary.consult(poolAddress, 800);
+        
         currentPrice = OracleLibrary.getQuoteAtTick(
             int24(twapTick), // can assume safe being result from consult()
             1,
@@ -277,8 +303,8 @@ contract BaseBot {
             priceAtTick[i] = OracleLibrary.getQuoteAtTick(
                 timeWeightedAverageTick,
                 1,
-                token0,
-                token1
+                token1,
+                token0
             );
 
             // Add the learned price to SMA
@@ -318,8 +344,9 @@ contract BaseBot {
 
 interface IVerifier {
     function verifyTx(
-            uint[2] memory a,
-            uint[2][2] memory b,
-            uint[2] memory c, uint[2] memory input
-        ) external view returns (bool r);
-        }
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[3] memory input
+    ) external view returns (bool r);
+}

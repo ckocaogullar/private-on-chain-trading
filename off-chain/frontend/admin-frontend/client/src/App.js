@@ -3,9 +3,10 @@ import Web3 from 'web3'
 import './App.css'
 import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
 import { BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS, SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS } from './verifier_config'
+import proof from './proof.json'
 
-const upperBoundPercentage = 1
-const lowerBoundPercentage = 1
+const upperBoundPercentage = 100
+const lowerBoundPercentage = 100
 
 
 function App(props) {
@@ -97,6 +98,7 @@ function App(props) {
   }, [account])
 
   const callApi = async (proofType, currentPrice, bollingerBand, percentageBound) => {
+    console.log('Starting callApi')
     const response = await fetch('/api/proof', {
       method: 'POST',
       headers: {
@@ -105,6 +107,8 @@ function App(props) {
       body: JSON.stringify({ post: [proofType, currentPrice, bollingerBand, percentageBound] }),
     });
     const body = await response.text();
+    console.log('callApi body: ', body)
+    return body
   };
 
 
@@ -140,14 +144,41 @@ function App(props) {
       if (error) {
         console.log('Could not get event ' + error)
       } else {
-        console.log('Event caught: ' + event.event)
+        console.log('TestEvent caught: ')
+        console.log(event)
       }
     })
-    await botContract.methods.test().send({from: account})
+    await botContract.methods.test().send({from: account, gas: 1500000})
     .on('receipt', function(receipt) {
       console.log('Public params receipt: ')
       console.log(receipt)
     })
+  }
+
+  const testTrade = async () => {
+    const currentPrice = 10
+    const upperBollingerBand = 10
+    const upperBoundPercentage = 100
+    const lowerBollingerBand = 10
+    const lowerBoundPercentage = 100
+    if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
+      console.log("Selling token1");
+      callApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+        const body = JSON.parse(res)
+        console.log('body')
+        console.log(body)
+        botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
+        .on('receipt', function(receipt) {
+          console.log('trade receipt: ')
+          console.log(receipt)
+        })
+      })
+      
+      //await botContract.methods.trade()
+   } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
+      console.log("Buying token1");
+      //callApi('buy-proof', currentPrice, lowerBollingerBand, lowerBoundPercentage).then(res => {body = res})
+   }
   }
 
   // Subscribe to the BollingerIndicators event
@@ -156,36 +187,70 @@ function App(props) {
   // Whichever signal it fits (buy or hold), use public and private parameters there to generate a proof accordingly
 
   const trade = async (numOfPeriods, periodLength) => {
+    botSocket.events.TradeComplete({}, (error, event) => {
+      console.log(event)
+      if (error) {
+        console.log('Could not get event ' + error)
+      } else {
+        console.log('TradeComplete Event caught: ', event)
+      }
+    })
     botSocket.events.ProofVerified({}, (error, event) => {
       console.log(event)
       if (error) {
         console.log('Could not get event ' + error)
       } else {
-        console.log('Event caught: ' + event.event)
+        console.log('ProofVerified Event caught: ', event)
       }
     })
     botSocket.events.BollingerIndicators({}, (error, event) => {
       if (error) {
         console.log('Could not get BollingerIndicators event ' + error)
       } else {
-        console.log('Event caught: ' + event.event)
+        console.log('Event BollingerIndicators caught: ')
+        console.log(event)
         const currentPrice = event.returnValues.currentPrice
         const upperBollingerBand = event.returnValues.upperBollingerBand
         const lowerBollingerBand = event.returnValues.lowerBollingerBand
+        console.log('currentPrice ' + currentPrice)
+        console.log('upperBollingerBand ' + upperBollingerBand)
+        console.log('lowerBollingerBand ' + lowerBollingerBand)
+        var buySellFlag = 2 // Default value set to HOLD signal
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
           console.log("Selling token1");
-          callApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage)
-          botContract.methods.trade()
+          callApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+            const body = JSON.parse(res)
+            console.log('body')
+            console.log(body)
+            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
+            .on('receipt', function(receipt) {
+              console.log('trade receipt: ')
+              console.log(receipt)
+            })
+          })
+          
+          //await botContract.methods.trade()
        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
           console.log("Buying token1");
-          callApi('buy-proof', currentPrice, lowerBollingerBand, lowerBoundPercentage)
+          //callApi('buy-proof', currentPrice, lowerBollingerBand, lowerBoundPercentage).then(res => {body = res})
+          buySellFlag = 1
        }
       // else: Hold
+
+      }
+    })
+    botSocket.events.TestEvent({}, (error, event) => {
+      console.log(event)
+      if (error) {
+        console.log('Could not get event ' + error)
+      } else {
+        console.log('TestEvent caught: ')
+        console.log(event)
       }
     })
     await botContract.methods.calculateIndicators(numOfPeriods, periodLength).send({from: account, gas: 1500000})
     .on('receipt', function(receipt) {
-      console.log('Public params receipt: ')
+      console.log('calculateIndicators receipt: ')
       console.log(receipt)
     })
   }
@@ -197,6 +262,7 @@ function App(props) {
       <button onClick={()=>getCurrentPrice()}>Get the current price</button>
       <button onClick={()=>getBollinger(10, 300)}>Get the Bollinger</button>
       <button onClick={()=>test()}>Test</button>
+      <button onClick={()=>testTrade()}>Test Trade</button>
       <button onClick={()=>trade(10, 300)}>Trade</button>
       <button onClick={()=>callApi('buy-proof')
       .then(res => console.log(res))
