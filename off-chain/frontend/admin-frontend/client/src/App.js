@@ -25,15 +25,18 @@ function App(props) {
       window.web3 = new Web3(window.ethereum);
       try {
         // Create two connections: one using HTTPS (for calling methods), the other using WebSocket (for subscribing to events)
-        const web3 = new Web3('http://127.0.0.1:8545/');
-        setWeb3(web3)
-        const web3Socket = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:8545/"));
-        setWeb3Socket(web3Socket)
-
-        // const web3 = new Web3(window.web3.currentProvider);
+        //
+        // For Hardhat network or ganache-cli:
+        // const web3 = new Web3('http://127.0.0.1:8545/');
         // setWeb3(web3)
-        // const web3Socket = new Web3("wss://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22");
+        // const web3Socket = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:8545/"));
         // setWeb3Socket(web3Socket)
+
+        // For Ropsten:
+        const web3 = new Web3(window.web3.currentProvider);
+        setWeb3(web3)
+        const web3Socket = new Web3("wss://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22");
+        setWeb3Socket(web3Socket)
         
 
         // Load the contract using both HTTPS and WebSocket connections
@@ -157,21 +160,14 @@ function App(props) {
     var initialBalance = null
     web3.eth.getBalance(account).then(res => {initialBalance = res});
     console.log('initialBalance ', initialBalance)
-    botSocket.events.TradeComplete({}, (error, event) => {
-      if (error) {
-        console.log('Could not get event ' + error)
-      } else {
-        console.log('TradeComplete Event caught: ', event)
-        var t1 = performance.now()
-        web3.eth.getBalance(account).then(res => {
-          var finalBalance = res
-          console.log("Total ETH used for trading " + (initialBalance - finalBalance))
-        });
-        console.log("Trading took " + (t1 - t0) + " milliseconds.")
-        
-      }
-      
-    })
+    var gasUsed = 0;
+    // botSocket.events.TradeComplete({}, (error, event) => {
+    //   if (error) {
+    //     console.log('Could not get event ' + error)
+    //   } else {
+    //     console.log('TradeComplete Event caught: ', event)      
+    //   }
+    // })
     botSocket.events.ProofVerified({}, (error, event) => {
       if (error) {
         console.log('Could not get event ' + error)
@@ -200,6 +196,14 @@ function App(props) {
             .on('receipt', function(receipt) {
               console.log('Trade receipt: ')
               console.log(receipt)
+              var t1 = performance.now()
+              gasUsed += receipt.gasUsed
+              web3.eth.getBalance(account).then(res => {
+                var finalBalance = res
+                console.log("Total WEI used for trading " + (initialBalance - finalBalance))
+              });
+              console.log("Trading took " + (t1 - t0) + " milliseconds.")
+              console.log("Total gas used: ", gasUsed)
             })
           })
           
@@ -212,6 +216,14 @@ function App(props) {
             .on('receipt', function(receipt) {
               console.log('Trade receipt: ')
               console.log(receipt)
+              var t1 = performance.now()
+              gasUsed += receipt.gasUsed
+              web3.eth.getBalance(account).then(res => {
+              var finalBalance = res
+              console.log("Total WEI used for trading " + (initialBalance - finalBalance))
+            });
+            console.log("Trading took " + (t1 - t0) + " milliseconds.")
+            console.log("Total gas used: ", gasUsed)
             })
           })
        }
@@ -232,6 +244,7 @@ function App(props) {
     .on('receipt', function(receipt) {
       console.log('calculateIndicators receipt: ')
       console.log(receipt)
+      gasUsed += receipt.gasUsed
     })
   }
 
@@ -242,7 +255,7 @@ function App(props) {
       <button onClick={()=>getCurrentPrice()}>Get the current price</button>
       <button onClick={()=>getBollinger(20, 3600)}>Get the Bollinger</button>
       <button onClick={()=>test()}>Test</button>
-      <button onClick={()=>trade(10, 300)}>Trade</button>
+      <button onClick={()=>trade(20, 1800)}>Trade</button>
     </div>
   );
 }
