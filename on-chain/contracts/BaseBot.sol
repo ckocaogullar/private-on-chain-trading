@@ -19,18 +19,22 @@ contract BaseBot {
 
     address admin;
 
-    address buyVerifierAddress = 0xD3afFFe33f5Fa62b2C6bc2655cd7a7F63d1F9081;
-    address sellVerifierAddress = 0xe702765d1a7f828AAC83C3f7CE49b2c1B9F397C2;
-
-    // Values for ropsten network
+    // Values for the Mainnet forking
     //
+    // address buyVerifierAddress = 0x9D918F441B5c099CEFDf7CA6cfaBb478ce030fB1;
+    // address sellVerifierAddress = 0xd612d11d4396aC06efF39600C294A10E6D8305A5;
+
     // ISwapRouter public constant uniswapRouter =
     //     ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     // IQuoter public constant quoter =
     //     IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
 
-    // Values for the Mainnet forking
+
+    // Values for Ropsten network
     //
+    address buyVerifierAddress = 0xb300f7880C5290257CC5B0DD47029d4B48BF3cF7;
+    address sellVerifierAddress = 0xf6238aBF309c6651e1658149d13c5EDBE7d42040;
+    
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     IQuoter public constant quoter =
@@ -203,7 +207,9 @@ contract BaseBot {
             numOfPeriods,
             periodLength
         );
+        console.log('movingAverage ', movingAverage);
         uint256 stdDev = standardDev(pastPrices, movingAverage);
+        console.log('stdDev ', stdDev);
         upperBollingerBand = movingAverage + 2 * stdDev;
         lowerBollingerBand = movingAverage - 2 * stdDev;
         // emit the two indicators used for the Bollinger trading algorithm as well as
@@ -309,6 +315,8 @@ contract BaseBot {
 
             // Add the learned price to SMA
             sma = SafeMath.add(sma, priceAtTick[i]);
+
+            console.log('priceAtTick[',i,'] = ', priceAtTick[i]);
         }
         // Divide SMA with the number of intervals
         sma = sma.div(tickCumulatives.length - 1);
@@ -324,7 +332,8 @@ contract BaseBot {
         for (uint256 i = 0; i < pastPrices.length; i++) {
             sumOfSquaredDev += (pastPrices[i] - mean) * (pastPrices[i] - mean);
         }
-        sqrt(sumOfSquaredDev / pastPrices.length);
+        console.log('sqrt(sumOfSquaredDev / pastPrices.length) ', sqrt(sumOfSquaredDev / pastPrices.length));
+        stdDev = sqrt(sumOfSquaredDev / pastPrices.length);
     }
 
     // Maths
