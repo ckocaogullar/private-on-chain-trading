@@ -38,23 +38,18 @@ function App(props) {
 
         // Load the contract using both HTTPS and WebSocket connections
         const botContract = new web3.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
-        console.log(botContract);
         setBotContract(botContract);
         const botSocket = new web3Socket.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
-        console.log(botSocket);
         setBotSocket(botSocket)
         const buyVerifierContract = new web3.eth.Contract(BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS);
-        console.log(buyVerifierContract);
         setBuyVerifierContract(buyVerifierContract);
         const sellVerifierContract = new web3.eth.Contract(BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS);
-        console.log(sellVerifierContract);
         setSellVerifierContract(sellVerifierContract);
 
         // Request account access if needed and get the accounts
         await window.ethereum.enable();
         const accounts = await web3.eth.getAccounts()
         setAccount(accounts[0])
-        console.log('Im here')
         
       } catch (error) {
         // User denied account access...
@@ -74,10 +69,8 @@ function App(props) {
 
   useEffect(() => {
     if (account === null) {
-      console.log('jumped here')
       return;
     }
-    console.log('got the account: ', account)
     const subscribeUser = async (user) => {
       const subUser = await botContract.methods.subscribeUser(user).send({ from: account })
         .on('receipt', function (receipt) {
@@ -98,7 +91,6 @@ function App(props) {
   }, [account])
 
   const callApi = async (proofType, currentPrice, bollingerBand, percentageBound) => {
-    console.log('Starting callApi')
     const response = await fetch('/api/proof', {
       method: 'POST',
       headers: {
@@ -107,7 +99,6 @@ function App(props) {
       body: JSON.stringify({ post: [proofType, currentPrice, bollingerBand, percentageBound] }),
     });
     const body = await response.text();
-    console.log('callApi body: ', body)
     return body
   };
 
@@ -155,48 +146,33 @@ function App(props) {
     })
   }
 
-  const testTrade = async () => {
-    const currentPrice = 10
-    const upperBollingerBand = 10
-    const upperBoundPercentage = 100
-    const lowerBollingerBand = 10
-    const lowerBoundPercentage = 100
-    if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
-      console.log("Selling token1");
-      callApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
-        const body = JSON.parse(res)
-        console.log('body')
-        console.log(body)
-        botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
-        .on('receipt', function(receipt) {
-          console.log('trade receipt: ')
-          console.log(receipt)
-        })
-      })
-      
-      //await botContract.methods.trade()
-   } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
-      console.log("Buying token1");
-      //callApi('buy-proof', currentPrice, lowerBollingerBand, lowerBoundPercentage).then(res => {body = res})
-   }
-  }
-
   // Subscribe to the BollingerIndicators event
   // Call calculateIndicators function
   // Once you catch the BollingerIndicators event, make the if-else comparisons with your private parameters
   // Whichever signal it fits (buy or hold), use public and private parameters there to generate a proof accordingly
 
   const trade = async (numOfPeriods, periodLength) => {
+    // Measure time and gas consumption
+    var t0 = performance.now()
+    var initialBalance = null
+    web3.eth.getBalance(account).then(res => {initialBalance = res});
+    console.log('initialBalance ', initialBalance)
     botSocket.events.TradeComplete({}, (error, event) => {
-      console.log(event)
       if (error) {
         console.log('Could not get event ' + error)
       } else {
         console.log('TradeComplete Event caught: ', event)
+        var t1 = performance.now()
+        web3.eth.getBalance(account).then(res => {
+          var finalBalance = res
+          console.log("Total ETH used for trading " + (initialBalance - finalBalance))
+        });
+        console.log("Trading took " + (t1 - t0) + " milliseconds.")
+        
       }
+      
     })
     botSocket.events.ProofVerified({}, (error, event) => {
-      console.log(event)
       if (error) {
         console.log('Could not get event ' + error)
       } else {
@@ -220,11 +196,9 @@ function App(props) {
           console.log("Selling token1");
           callApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             const body = JSON.parse(res)
-            console.log('body')
-            console.log(body)
             botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
             .on('receipt', function(receipt) {
-              console.log('trade receipt: ')
+              console.log('Trade receipt: ')
               console.log(receipt)
             })
           })
@@ -232,8 +206,14 @@ function App(props) {
           //await botContract.methods.trade()
        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
           console.log("Buying token1");
-          //callApi('buy-proof', currentPrice, lowerBollingerBand, lowerBoundPercentage).then(res => {body = res})
-          buySellFlag = 1
+          callApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+            const body = JSON.parse(res)
+            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 1).send({from: account, gas: 1500000})
+            .on('receipt', function(receipt) {
+              console.log('Trade receipt: ')
+              console.log(receipt)
+            })
+          })
        }
       // else: Hold
 
@@ -260,16 +240,9 @@ function App(props) {
       <h1>Hello, Admin!</h1>
       <p>Your account: {account}</p>
       <button onClick={()=>getCurrentPrice()}>Get the current price</button>
-      <button onClick={()=>getBollinger(10, 300)}>Get the Bollinger</button>
+      <button onClick={()=>getBollinger(20, 3600)}>Get the Bollinger</button>
       <button onClick={()=>test()}>Test</button>
-      <button onClick={()=>testTrade()}>Test Trade</button>
       <button onClick={()=>trade(10, 300)}>Trade</button>
-      <button onClick={()=>callApi('buy-proof')
-      .then(res => console.log(res))
-      .catch(err => console.log(err))}>Test Buy Proof</button>
-      <button onClick={()=>callApi('sell-proof')
-      .then(res => console.log(res))
-      .catch(err => console.log(err))}>Test Sell Proof</button>
     </div>
   );
 }
