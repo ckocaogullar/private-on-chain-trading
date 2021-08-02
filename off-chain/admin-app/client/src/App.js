@@ -8,6 +8,10 @@ import proof from './proof.json'
 const upperBoundPercentage = 100
 const lowerBoundPercentage = 100
 
+var performanceRunCounter = 0
+const performanceRunThreshold = 2
+
+var indicatorsCaught = false
 
 function App(props) {
   const [account, setAccount] = useState(null);
@@ -21,6 +25,8 @@ function App(props) {
   // load blockchain data in initial render
   useEffect(async () => {
     // Modern dapp browsers...
+
+    console.log('element grabbed', document.getElementsByClassName('"button btn-primary page-container__footer-button"')[0])
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       try {
@@ -93,13 +99,36 @@ function App(props) {
     })
   }, [account])
 
-  const callApi = async (proofType, currentPrice, bollingerBand, percentageBound) => {
+  const callProofApi = async (proofType, currentPrice, bollingerBand, percentageBound) => {
     const response = await fetch('/api/proof', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ post: [proofType, currentPrice, bollingerBand, percentageBound] }),
+    });
+    const body = await response.text();
+    return body
+  };
+
+  const callPerformanceApi = async (wei, time, gas) => {
+    const response = await fetch('/api/performance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ post: [wei, time, gas] }),
+    });
+    const body = await response.text();
+    return body
+  };
+
+  const callEndPerformanceApi = async () => {
+    const response = await fetch('/api/end-performance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
     const body = await response.text();
     return body
@@ -156,7 +185,17 @@ function App(props) {
 
   const trade = async (numOfPeriods, periodLength) => {
     // Measure time and gas consumption
-    var t0 = performance.now()
+    if (performanceRunCounter < 0){
+      console.log('performanceRunCounter < 0 = ', performanceRunCounter)
+      return
+    } else if (performanceRunCounter >= performanceRunThreshold){
+      callEndPerformanceApi()
+      // Set counter to -1 to show that the performance check has ended
+      console.log('performanceRunCounter >= performanceRunThreshold = ', performanceRunCounter)
+      performanceRunCounter = -1
+      return
+    } else {
+      var t0 = performance.now()
     var initialBalance = null
     web3.eth.getBalance(account).then(res => {initialBalance = res});
     console.log('initialBalance ', initialBalance)
@@ -168,14 +207,16 @@ function App(props) {
     //     console.log('TradeComplete Event caught: ', event)      
     //   }
     // })
-    botSocket.events.ProofVerified({}, (error, event) => {
+    //botSocket.events.ProofVerified({}, (error, event) => {
+      botSocket.once('ProofVerified', {}, (error, event) => {
       if (error) {
         console.log('Could not get event ' + error)
       } else {
         console.log('ProofVerified Event caught: ', event)
       }
     })
-    botSocket.events.BollingerIndicators({}, (error, event) => {
+    //botSocket.events.BollingerIndicators({}, (error, event) => {
+    botSocket.once('BollingerIndicators', {}, (error, event) => {
       if (error) {
         console.log('Could not get BollingerIndicators event ' + error)
       } else {
@@ -190,7 +231,7 @@ function App(props) {
         var buySellFlag = 2 // Default value set to HOLD signal
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
           console.log("Selling token1");
-          callApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+          callProofApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             const body = JSON.parse(res)
             botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
             .on('receipt', function(receipt) {
@@ -200,17 +241,24 @@ function App(props) {
               gasUsed += receipt.gasUsed
               web3.eth.getBalance(account).then(res => {
                 var finalBalance = res
-                console.log("Total WEI used for trading " + (initialBalance - finalBalance))
+                var deltaBalance = (initialBalance - finalBalance)
+                console.log("Total WEI used for trading " + deltaBalance)
+                var deltaTime = (t1 - t0)
+                console.log("Trading took " + deltaTime + " milliseconds.")
+                console.log("Total gas used: ", gasUsed)
+                callPerformanceApi(deltaBalance, deltaTime, gasUsed).then(()=> {
+                  console.log('heyyyyy')
+                  performanceRunCounter += 1
+                  trade(numOfPeriods, periodLength)
+                })
               });
-              console.log("Trading took " + (t1 - t0) + " milliseconds.")
-              console.log("Total gas used: ", gasUsed)
             })
           })
           
           //await botContract.methods.trade()
        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
           console.log("Buying token1");
-          callApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+          callProofApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             const body = JSON.parse(res)
             botContract.methods.trade(body.a, body.b, body.c, body.inputs, 1).send({from: account, gas: 1500000})
             .on('receipt', function(receipt) {
@@ -220,10 +268,18 @@ function App(props) {
               gasUsed += receipt.gasUsed
               web3.eth.getBalance(account).then(res => {
               var finalBalance = res
-              console.log("Total WEI used for trading " + (initialBalance - finalBalance))
+              var deltaBalance = (initialBalance - finalBalance)
+              console.log("Total WEI used for trading " + deltaBalance)
+              var deltaTime = (t1 - t0)
+              console.log("Trading took " + deltaTime + " milliseconds.")
+              console.log("Total gas used: ", gasUsed)
+              callPerformanceApi(deltaBalance, deltaTime, gasUsed).then(()=> {
+                console.log('heyyyyy')
+                performanceRunCounter += 1
+                trade(numOfPeriods, periodLength)
+              })
             });
-            console.log("Trading took " + (t1 - t0) + " milliseconds.")
-            console.log("Total gas used: ", gasUsed)
+            
             })
           })
        }
@@ -246,6 +302,8 @@ function App(props) {
       console.log(receipt)
       gasUsed += receipt.gasUsed
     })
+    }
+    
   }
 
   return (

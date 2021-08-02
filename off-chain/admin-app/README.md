@@ -1,6 +1,7 @@
 # Admin Off-Chain
+This folder includes the off-chain app that will be used by the admin of the trading bot.
 
-Consists of a React frontend app and a Node server as a proxy. The server is needed for running shell scripts to generate proofs easily, controlled by the frontend app.
+The app consists of a React frontend app (which is in the `client/` folder) and a Node server as a proxy (`server.js`). The server is needed for running shell script to generate proofs automatically.
 
 You should give execution permission to the proof generation script as follows:
 
@@ -9,3 +10,5 @@ You should give execution permission to the proof generation script as follows:
 You can start running both run the React app and Server concurrently.
 
 Download the dependencies using `npm install` or `yarn` both in the root folder (admin/frontend) and the client folder.
+
+
