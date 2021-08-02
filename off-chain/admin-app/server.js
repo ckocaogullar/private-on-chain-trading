@@ -4,8 +4,14 @@ const { exec } = require('child_process');
 const app = express();
 const port = process.env.PORT || 5000;
 
-//const buyProof = require('../zokrates-proof/buy-proof/proof.json')
+const buyProof = require('../zokrates-proof/buy-proof/proof.json')
 const sellProof = require('../zokrates-proof/sell-proof/proof.json')
+
+var memory = {
+    table: []
+ };
+
+const fs = require('fs');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -63,6 +69,24 @@ app.post('/api/proof', (req, res) => {
     console.log(`stdout:\n${stdout}`);
     res.send(proof)
 });
+})
+
+app.post('/api/performance', (req, res) => {
+    console.log('Taking the performance values')
+    console.log(req.body.post[0], ' ', req.body.post[1], ' ', req.body.post[2])
+    memory.table.push({deltaBalance: req.body.post[0], deltaTime: req.body.post[1], gasUsed: req.body.post[2]})
+    res.send()
+})
+
+app.post('/api/end-performance', (res, req) => {
+    console.log('Ending performance evaluations')
+    var json = JSON.stringify(memory);
+    fs.writeFile('performance.json', json, 'utf8', function(err) {
+        if (err) throw err;
+        console.log('complete');
+        return;
+        });
+    
 })
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

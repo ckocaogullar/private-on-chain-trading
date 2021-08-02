@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import Web3 from 'web3'
+import React, { useState, useEffect } from '../../admin-app/client/node_modules/@types/react'
+import Web3 from '../../admin-app/client/node_modules/web3/types'
 import './App.css'
 import { ABI, CONTRACT_ADDRESS } from './bot_config'
 
