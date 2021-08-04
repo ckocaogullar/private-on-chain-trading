@@ -16,30 +16,9 @@ const fs = require('fs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/world', (req, res) => {
-  console.log(req.body.post[0]);
-  res.send(
-    `I received your POST request. This is what you sent me: ${req.body.post}`,
-  );
-//   res.send({ express: 'Creating proof for the buy condition' });
-//     exec(__dirname + '/createProof.sh', (error, stdout, stderr) => {
-//     if (error) {
-//         console.error(`error: ${error.message}`);
-//         return;
-//     }
-
-//     if (stderr) {
-//         console.error(`stderr: ${stderr}`);
-//         return;
-//     }
-
-//     console.log(`stdout:\n${stdout}`);
-// });
-});
-
 app.post('/api/proof', (req, res) => {
-    console.log('Running the script to generate a buy condition proof');
-    console.log(req.body.post[0]);
+    // console.log('Running the script to generate a buy condition proof');
+    // console.log(req.body.post[0]);
     var proofType = '';
     var proof = {a: '', b: '', c: '', inputs: ''};
     if(req.body.post[0] == 'buy-proof') {
@@ -66,27 +45,26 @@ app.post('/api/proof', (req, res) => {
         return;
     }
 
-    console.log(`stdout:\n${stdout}`);
+    // console.log(`stdout:\n${stdout}`);
     res.send(proof)
 });
 })
 
 app.post('/api/performance', (req, res) => {
-    console.log('Taking the performance values')
-    console.log(req.body.post[0], ' ', req.body.post[1], ' ', req.body.post[2])
-    memory.table.push({deltaBalance: req.body.post[0], deltaTime: req.body.post[1], gasUsed: req.body.post[2]})
+    // console.log('Taking the performance values')
+    // console.log(req.body.post[0], ' ', req.body.post[1], ' ', req.body.post[2])
+    memory.table.push({deltaBalance: req.body.post[0], deltaGetIndicators: req.body.post[1],  deltaProofGenTime: req.body.post[2], deltaTradingTime: req.body.post[3], deltaTotalTime: req.body.post[4], gasUsed: req.body.post[5]})
     res.send()
 })
 
 app.post('/api/end-performance', (res, req) => {
-    console.log('Ending performance evaluations')
+    // console.log('Ending performance evaluations')
     var json = JSON.stringify(memory);
     fs.writeFile('performance.json', json, 'utf8', function(err) {
         if (err) throw err;
         console.log('complete');
         return;
-        });
-    
+        }); 
 })
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

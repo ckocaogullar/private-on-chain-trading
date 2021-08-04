@@ -10,18 +10,16 @@ const upperBoundPercentage = 100
 const lowerBoundPercentage = 100
 
 var performanceRunCounter = 0
-const performanceRunThreshold = 2
+const performanceRunThreshold = 3
 
 var indicatorsCaught = false
+var tProofGenStarted = null
 
 function App(props) {
   const [account, setAccount] = useState(null);
-  const [subscribedUser, setSubscribedUser] = useState();
+  //const [subscribedUser, setSubscribedUser] = useState();
   const [botContract, setBotContract] = useState(null);
   const [botSocket, setBotSocket] = useState(null);
-  const [buyVerifierContract, setBuyVerifierContract] = useState(null);
-  const [sellVerifierContract, setSellVerifierContract] = useState(null);
-  const [web3Socket, setWeb3Socket] = useState();
   const [web3, setWeb3] = useState();
   // load blockchain data in initial render
   useEffect(async () => {
@@ -30,29 +28,27 @@ function App(props) {
       window.web3 = new Web3(window.ethereum);
       try {
         // Create two connections: one using HTTPS (for calling methods), the other using WebSocket (for subscribing to events)
-        //
-        //For Hardhat network or ganache-cli:
+
+        // ------------------------------------------------------------
+        // For local testnet (Hardhat network or ganache-cli):
+        // ------------------------------------------------------------
         // const web3 = new Web3('http://127.0.0.1:8545/');
         // setWeb3(web3)
         // const web3Socket = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:8545/"));
-        // setWeb3Socket(web3Socket)
 
+        // ------------------------------------------------------------
         // For Ropsten:
+        // ------------------------------------------------------------
         const web3 = new Web3(window.web3.currentProvider);
         setWeb3(web3)
         const web3Socket = new Web3("wss://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22");
-        setWeb3Socket(web3Socket)
-        
+        // ------------------------------------------------------------
 
         // Load the contract using both HTTPS and WebSocket connections
         const botContract = new web3.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
         setBotContract(botContract);
         const botSocket = new web3Socket.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
         setBotSocket(botSocket)
-        const buyVerifierContract = new web3.eth.Contract(BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS);
-        setBuyVerifierContract(buyVerifierContract);
-        const sellVerifierContract = new web3.eth.Contract(BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS);
-        setSellVerifierContract(sellVerifierContract);
 
         // Request account access if needed and get the accounts
         await window.ethereum.enable();
@@ -75,30 +71,35 @@ function App(props) {
 
   }, []);
 
-  useEffect(() => {
-    if (account === null) {
-      return;
-    }
-    const subscribeUser = async (user) => {
-      const subUser = await botContract.methods.subscribeUser(user).send({ from: account })
-        .on('receipt', function (receipt) {
-          console.log(receipt)
-        })
-      setSubscribedUser(subUser);
-    }
+  // ---------------------------------------------------
+  // Simple Subscription Logic
+  // ---------------------------------------------------
+  // useEffect(() => {
+  //   if (account === null) {
+  //     return;
+  //   }
+  //   const subscribeUser = async (user) => {
+  //     const subUser = await botContract.methods.subscribeUser(user).send({ from: account })
+  //       .on('receipt', function (receipt) {
+  //         // console.log(receipt)
+  //       })
+  //     setSubscribedUser(subUser);
+  //   }
 
-    botSocket.events.UserSubscribed({}, (error, event) => {
-      console.log(event)
-      if (error) {
-        console.log('Could not get event ' + error)
-      } else {
-        subscribeUser(event.returnValues.subscriberAddress)
-        console.log('Event caught: ' + event.event)
-      }
-    })
-  }, [account])
+  //   botSocket.events.UserSubscribed({}, (error, event) => {
+  //     // console.log(event)
+  //     if (error) {
+  //       // console.log('Could not get event ' + error)
+  //     } else {
+  //       subscribeUser(event.returnValues.subscriberAddress)
+  //       // console.log('Event caught: ' + event.event)
+  //     }
+  //   })
+  // }, [account])
+  // ---------------------------------------------------
 
   const callProofApi = async (proofType, currentPrice, bollingerBand, percentageBound) => {
+    tProofGenStarted = performance.now()
     const response = await fetch('/api/proof', {
       method: 'POST',
       headers: {
@@ -110,13 +111,13 @@ function App(props) {
     return body
   };
 
-  const callPerformanceApi = async (wei, time, gas) => {
+  const callPerformanceApi = async (deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed) => {
     const response = await fetch('/api/performance', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ post: [wei, time, gas] }),
+      body: JSON.stringify({ post: [deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed] }),
     });
     const body = await response.text();
     return body
@@ -137,43 +138,7 @@ function App(props) {
   const getCurrentPrice = async () => {
     await botContract.methods.getCurrentPrice().send({from: account})
     .on('receipt', function (receipt) {
-      console.log(receipt)
-    })
-  }
-
-  const getBollinger = async (numOfPeriods, periodLength) => {
-    botSocket.events.BollingerIndicators({}, (error, event) => {
-      if(error){
-        console.log('Error catching event ' + error)
-      } else {
-        console.log('Here is the Bollinger event: ')
-        console.log(event)
-      }
-    })
-
-    await botContract.methods.bollinger(numOfPeriods, periodLength).send({from: account, gas: 1500000})
-    .on('receipt', function (receipt) {
-      console.log(receipt)
-    })
-
-    botContract.getPastEvents("allEvents", {fromBlock: 0, toBlock: "latest"})
-    .then(console.log)  
-  }
-
-  const test = async () => {
-    botSocket.events.TestEvent({}, (error, event) => {
-      console.log(event)
-      if (error) {
-        console.log('Could not get event ' + error)
-      } else {
-        console.log('TestEvent caught: ')
-        console.log(event)
-      }
-    })
-    await botContract.methods.test().send({from: account, gas: 1500000})
-    .on('receipt', function(receipt) {
-      console.log('Public params receipt: ')
-      console.log(receipt)
+      // console.log(receipt)
     })
   }
 
@@ -185,75 +150,75 @@ function App(props) {
   const trade = async (numOfPeriods, periodLength) => {
     // Measure time and gas consumption
     if (performanceRunCounter < 0){
-      console.log('performanceRunCounter < 0 = ', performanceRunCounter)
+      // console.log('performanceRunCounter < 0 = ', performanceRunCounter)
       return
     } else if (performanceRunCounter >= performanceRunThreshold){
       callEndPerformanceApi()
       // Set counter to -1 to show that the performance check has ended
-      console.log('performanceRunCounter >= performanceRunThreshold = ', performanceRunCounter)
+      // console.log('performanceRunCounter >= performanceRunThreshold = ', performanceRunCounter)
       performanceRunCounter = -1
       return
     } else {
-      var t0 = performance.now()
+    var t0 = performance.now()
+    var tBollingerIndicators = null
+    var tProofGenEnded = null
     var initialBalance = null
     web3.eth.getBalance(account).then(res => {initialBalance = res});
-    console.log('initialBalance ', initialBalance)
+    // console.log('initialBalance ', initialBalance)
     var gasUsed = 0;
-    // botSocket.events.TradeComplete({}, (error, event) => {
-    //   if (error) {
-    //     console.log('Could not get event ' + error)
-    //   } else {
-    //     console.log('TradeComplete Event caught: ', event)      
-    //   }
-    // })
-    //botSocket.events.ProofVerified({}, (error, event) => {
+
+    
       botSocket.once('TestEvent', {}, (error, event) => {
         if (error) {
           console.log('Could not get event ' + error)
         } else {
-          console.log('TestEvent Event caught: ', event)
+          // console.log('TestEvent Event caught: ', event)
         }
       })
       botSocket.once('ProofVerified', {}, (error, event) => {
       if (error) {
         console.log('Could not get event ' + error)
       } else {
-        console.log('ProofVerified Event caught: ', event)
+        // console.log('ProofVerified Event caught: ', event)
       }
     })
-    //botSocket.events.BollingerIndicators({}, (error, event) => {
+    
     botSocket.once('BollingerIndicators', {}, (error, event) => {
       if (error) {
         console.log('Could not get BollingerIndicators event ' + error)
       } else {
-        console.log('Event BollingerIndicators caught: ')
-        console.log(event)
+        // console.log('Event BollingerIndicators caught: ')
+        // console.log(event)
+        
         const currentPrice = event.returnValues.currentPrice
         const upperBollingerBand = event.returnValues.upperBollingerBand
         const lowerBollingerBand = event.returnValues.lowerBollingerBand
-        console.log('currentPrice ' + currentPrice)
-        console.log('upperBollingerBand ' + upperBollingerBand)
-        console.log('lowerBollingerBand ' + lowerBollingerBand)
-        var buySellFlag = 2 // Default value set to HOLD signal
+        // console.log('currentPrice ' + currentPrice)
+        // console.log('upperBollingerBand ' + upperBollingerBand)
+        // console.log('lowerBollingerBand ' + lowerBollingerBand)
+
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
-          console.log("Selling token1");
+          // console.log("Selling token1");
           callProofApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+            tProofGenEnded = performance.now()
             const body = JSON.parse(res)
             botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
             .on('receipt', function(receipt) {
-              console.log('Trade receipt: ')
-              console.log(receipt)
-              var t1 = performance.now()
+              // console.log('Trade receipt: ')
+              // console.log(receipt)
+              var tTradeEnded = performance.now()
               gasUsed += receipt.gasUsed
               web3.eth.getBalance(account).then(res => {
                 var finalBalance = res
                 var deltaBalance = (initialBalance - finalBalance)
-                console.log("Total WEI used for trading " + deltaBalance)
-                var deltaTime = (t1 - t0)
-                console.log("Trading took " + deltaTime + " milliseconds.")
-                console.log("Total gas used: ", gasUsed)
-                callPerformanceApi(deltaBalance, deltaTime, gasUsed).then(()=> {
-                  console.log('heyyyyy')
+                // console.log("Total WEI used for trading " + deltaBalance)
+                var deltaTotalTime = (tTradeEnded - t0)
+                var deltaTradingTime = (tTradeEnded - tProofGenEnded)
+                var deltaProofGenTime = (tProofGenEnded - tProofGenStarted)
+                var deltaGetIndicators = (tBollingerIndicators - t0)
+                // console.log("Trading took " + deltaTotalTime + " milliseconds.")
+                // console.log("Total gas used: ", gasUsed)
+                callPerformanceApi(deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed).then(()=> {
                   performanceRunCounter += 1
                   trade(numOfPeriods, periodLength)
                 })
@@ -263,24 +228,27 @@ function App(props) {
           
           //await botContract.methods.trade()
        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
-          console.log("Buying token1");
+          // console.log("Buying token1");
           callProofApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+            tProofGenEnded = performance.now()
             const body = JSON.parse(res)
             botContract.methods.trade(body.a, body.b, body.c, body.inputs, 1).send({from: account, gas: 1500000})
             .on('receipt', function(receipt) {
-              console.log('Trade receipt: ')
-              console.log(receipt)
-              var t1 = performance.now()
+              // console.log('Trade receipt: ')
+              // console.log(receipt)
+              var tTradeEnded = performance.now()
               gasUsed += receipt.gasUsed
               web3.eth.getBalance(account).then(res => {
               var finalBalance = res
               var deltaBalance = (initialBalance - finalBalance)
-              console.log("Total WEI used for trading " + deltaBalance)
-              var deltaTime = (t1 - t0)
-              console.log("Trading took " + deltaTime + " milliseconds.")
-              console.log("Total gas used: ", gasUsed)
-              callPerformanceApi(deltaBalance, deltaTime, gasUsed).then(()=> {
-                console.log('heyyyyy')
+              // console.log("Total WEI used for trading " + deltaBalance)
+              var deltaTotalTime = (tTradeEnded - t0)
+              var deltaTradingTime = (tTradeEnded - tProofGenEnded)
+              var deltaProofGenTime = (tProofGenEnded - tProofGenStarted)
+              var deltaGetIndicators = (tBollingerIndicators - t0)
+              // console.log("Trading took " + deltaTotalTime + " milliseconds.")
+              // console.log("Total gas used: ", gasUsed)
+              callPerformanceApi(deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed).then(()=> {
                 performanceRunCounter += 1
                 trade(numOfPeriods, periodLength)
               })
@@ -293,20 +261,14 @@ function App(props) {
 
       }
     })
-    botSocket.events.TestEvent({}, (error, event) => {
-      console.log(event)
-      if (error) {
-        console.log('Could not get event ' + error)
-      } else {
-        console.log('TestEvent caught: ')
-        console.log(event)
-      }
-    })
+  
     await botContract.methods.calculateIndicators(numOfPeriods, periodLength).send({from: account, gas: 1500000})
     .on('receipt', function(receipt) {
-      console.log('calculateIndicators receipt: ')
-      console.log(receipt)
+      // console.log('calculateIndicators receipt: ')
+      // console.log(receipt)
+      tBollingerIndicators = performance.now()
       gasUsed += receipt.gasUsed
+      // console.log('gasUsed after calculateIndicators ', gasUsed)
     })
     }
     
@@ -317,7 +279,6 @@ function App(props) {
       <h1>Hello, Admin!</h1>
       <p>Your account: {account}</p>
       <button onClick={()=>getCurrentPrice()}>Get the current price</button>
-      <button onClick={()=>getBollinger(20, 3600)}>Get the Bollinger</button>
       <button onClick={()=>test()}>Test</button>
       <button onClick={()=>trade(20, 1800)}>Trade</button>
     </div>
