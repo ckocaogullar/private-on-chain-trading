@@ -1,10 +1,1 @@
-{
-  "table": [
-    {
-      "deltaBalance": 908601991100416,
-      "deltaTime": 40665.300000000745,
-      "gasUsed": 454301
-    },
-    { "deltaBalance": 908601990914048, "deltaTime": 23095, "gasUsed": 454301 }
-  ]
-}
+{"table":[{"deltaBalance":454301006814464,"deltaTime":41709.79999999702,"gasUsed":454301},{"deltaBalance":454301007268864,"deltaTime":82294,"gasUsed":454301}]}

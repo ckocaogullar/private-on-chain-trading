@@ -58,7 +58,7 @@ contract BaseBot {
 
     event UserSubscribed(address subscriberAddress);
     event SubscriptionConfirmed(address userAddress);
-    event TestEvent(uint256 testNum);
+    event TestEvent(uint256 stdDev, uint256 upperBollinger, uint256 lowerBollinger);
     event ProofVerified(bool verified);
     event BollingerIndicators(
         uint256 upperBollingerBand,
@@ -108,10 +108,6 @@ contract BaseBot {
         // Check if the user has actually invested the money she hes promised to invest
         subscribers[user].subscriptionStatus = SubscriptionStatus.APPROVED;
         emit SubscriptionConfirmed(user);
-    }
-
-    function test() external {
-        emit TestEvent(12345);
     }
 
     // ------------------------------- TRADING -------------------------------
@@ -212,6 +208,9 @@ contract BaseBot {
         console.log('stdDev ', stdDev);
         upperBollingerBand = movingAverage + 2 * stdDev;
         lowerBollingerBand = movingAverage - 2 * stdDev;
+        console.log('upperBollingerBand', upperBollingerBand);
+        console.log('lowerBollingerBand', lowerBollingerBand);
+        emit TestEvent(stdDev, upperBollingerBand, poolAddress);
         // emit the two indicators used for the Bollinger trading algorithm as well as
         // the current price (at the moment of observing prices within the sma function)
         emit BollingerIndicators(
@@ -227,6 +226,7 @@ contract BaseBot {
         //     //swap(token0, token1, subscribers[msg.sender].amount);
         // }
         // else: Hold
+        
     }
 
     function getCurrentPrice() public returns (uint256 currentPrice) {
