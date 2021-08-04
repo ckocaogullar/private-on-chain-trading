@@ -1,1 +1,19 @@
-{"table":[{"deltaBalance":454301006814464,"deltaTime":41709.79999999702,"gasUsed":454301},{"deltaBalance":454301007268864,"deltaTime":82294,"gasUsed":454301}]}
+{
+  "table": [
+    {
+      "deltaBalance": 462605012953088,
+      "deltaGetIndicators": 20854.79999999702,
+      "deltaProofGenTime": 1260.7999999970198
+    },
+    {
+      "deltaBalance": 462605012681984,
+      "deltaGetIndicators": 20324.60000000894,
+      "deltaProofGenTime": 1172.2999999970198
+    },
+    {
+      "deltaBalance": 462605012952832,
+      "deltaGetIndicators": 19900.69999998808,
+      "deltaProofGenTime": 1455.5999999940395
+    }
+  ]
+}

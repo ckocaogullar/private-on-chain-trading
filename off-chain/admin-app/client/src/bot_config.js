@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0x74e5F8781269D8204FC47e42f3e5c531C64c6Cc4'
+export const BOT_CONTRACT_ADDRESS = '0xf1E32446A509DAA218a0F53CB3B01e2feD28a4A7'
 
 // Hardhat Node address regularly used for this contract
 // export const BOT_CONTRACT_ADDRESS = '0xE05FB6Ef9451D4f459893f35241b77E689b97ccF'
