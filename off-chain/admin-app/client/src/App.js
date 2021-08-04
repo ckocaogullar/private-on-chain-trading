@@ -5,6 +5,7 @@ import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
 import { BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS, SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS } from './verifier_config'
 import proof from './proof.json'
 
+
 const upperBoundPercentage = 100
 const lowerBoundPercentage = 100
 
@@ -25,14 +26,12 @@ function App(props) {
   // load blockchain data in initial render
   useEffect(async () => {
     // Modern dapp browsers...
-
-    console.log('element grabbed', document.getElementsByClassName('"button btn-primary page-container__footer-button"')[0])
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       try {
         // Create two connections: one using HTTPS (for calling methods), the other using WebSocket (for subscribing to events)
         //
-        // For Hardhat network or ganache-cli:
+        //For Hardhat network or ganache-cli:
         // const web3 = new Web3('http://127.0.0.1:8545/');
         // setWeb3(web3)
         // const web3Socket = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:8545/"));
@@ -208,6 +207,13 @@ function App(props) {
     //   }
     // })
     //botSocket.events.ProofVerified({}, (error, event) => {
+      botSocket.once('TestEvent', {}, (error, event) => {
+        if (error) {
+          console.log('Could not get event ' + error)
+        } else {
+          console.log('TestEvent Event caught: ', event)
+        }
+      })
       botSocket.once('ProofVerified', {}, (error, event) => {
       if (error) {
         console.log('Could not get event ' + error)
