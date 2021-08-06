@@ -7,6 +7,8 @@ const port = process.env.PORT || 5000;
 const buyProof = require('../zokrates-proof/buy-proof/proof.json')
 const sellProof = require('../zokrates-proof/sell-proof/proof.json')
 
+let jsonData = require('../performance.json');
+
 var memory = {
     table: []
  };
@@ -52,19 +54,20 @@ app.post('/api/proof', (req, res) => {
 
 app.post('/api/performance', (req, res) => {
     // console.log('Taking the performance values')
-    // console.log(req.body.post[0], ' ', req.body.post[1], ' ', req.body.post[2])
-    memory.table.push({deltaBalance: req.body.post[0], deltaGetIndicators: req.body.post[1],  deltaProofGenTime: req.body.post[2], deltaTradingTime: req.body.post[3], deltaTotalTime: req.body.post[4], gasUsed: req.body.post[5]})
+    
+    jsonData.table.push({deltaBalance: req.body.post[0], deltaGetIndicators: req.body.post[1],  deltaProofGenTime: req.body.post[2], deltaProofVerifTime: req.body.post[3], deltaTradingTime: req.body.post[4], deltaTotalTime: req.body.post[5], gasUsed: req.body.post[6]})
+    console.log(jsonData)
+    var json = JSON.stringify(jsonData);
+    fs.writeFile('../performance.json', json, 'utf8', function(err) {
+        if (err) throw err;
+        console.log('complete');
+        return;
+        }); 
     res.send()
 })
 
 app.post('/api/end-performance', (res, req) => {
     // console.log('Ending performance evaluations')
-    var json = JSON.stringify(memory);
-    fs.writeFile('performance.json', json, 'utf8', function(err) {
-        if (err) throw err;
-        console.log('complete');
-        return;
-        }); 
 })
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
