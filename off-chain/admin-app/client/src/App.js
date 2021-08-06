@@ -3,14 +3,13 @@ import Web3 from 'web3'
 import './App.css'
 import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
 import { BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS, SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS } from './verifier_config'
-import proof from './proof.json'
 
 
 const upperBoundPercentage = 100
 const lowerBoundPercentage = 100
 
 var performanceRunCounter = 0
-const performanceRunThreshold = 3
+const performanceRunThreshold = 100
 
 var indicatorsCaught = false
 var tProofGenStarted = null
@@ -62,11 +61,11 @@ function App(props) {
     // Legacy dapp browsers...
     else if (window.web3) {
       window.web3 = new Web3(web3.currentProvider);
-      console.log("You are using a legacy dapp browser. Please switch to a modern dapp browser, e.g. Brave")
+      // console.log("You are using a legacy dapp browser. Please switch to a modern dapp browser, e.g. Brave")
     }
     // Non-dapp browsers...
     else {
-      console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
+      // console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
     }
 
   }, []);
@@ -111,13 +110,13 @@ function App(props) {
     return body
   };
 
-  const callPerformanceApi = async (deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed) => {
+  const callPerformanceApi = async (deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime ,deltaTradingTime, deltaTotalTime, gasUsed) => {
     const response = await fetch('/api/performance', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ post: [deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed] }),
+      body: JSON.stringify({ post: [deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime, deltaTradingTime, deltaTotalTime, gasUsed] }),
     });
     const body = await response.text();
     return body
@@ -148,6 +147,12 @@ function App(props) {
   // Whichever signal it fits (buy or hold), use public and private parameters there to generate a proof accordingly
 
   const trade = async (numOfPeriods, periodLength) => {
+    // Get average gas price
+    // ----------------------
+    // web3.eth.getGasPrice().then((result) => {
+    //   console.log('price avg: ', web3.utils.fromWei(result, 'gwei'))
+    //   })
+
     // Measure time and gas consumption
     if (performanceRunCounter < 0){
       // console.log('performanceRunCounter < 0 = ', performanceRunCounter)
@@ -160,8 +165,10 @@ function App(props) {
       return
     } else {
     var t0 = performance.now()
+    // console.log('t0 ', t0)
     var tBollingerIndicators = null
     var tProofGenEnded = null
+    var tProofVerified = null
     var initialBalance = null
     web3.eth.getBalance(account).then(res => {initialBalance = res});
     // console.log('initialBalance ', initialBalance)
@@ -170,26 +177,29 @@ function App(props) {
     
       botSocket.once('TestEvent', {}, (error, event) => {
         if (error) {
-          console.log('Could not get event ' + error)
+          // console.log('Could not get event ' + error)
         } else {
           // console.log('TestEvent Event caught: ', event)
         }
       })
       botSocket.once('ProofVerified', {}, (error, event) => {
       if (error) {
-        console.log('Could not get event ' + error)
+        // console.log('Could not get event ' + error)
       } else {
+        tProofVerified = performance.now()
+        // console.log('tProofVerified ', tProofVerified)
         // console.log('ProofVerified Event caught: ', event)
       }
     })
     
     botSocket.once('BollingerIndicators', {}, (error, event) => {
       if (error) {
-        console.log('Could not get BollingerIndicators event ' + error)
+        // console.log('Could not get BollingerIndicators event ' + error)
       } else {
         // console.log('Event BollingerIndicators caught: ')
         // console.log(event)
-        
+        tBollingerIndicators = performance.now()
+        // console.log('tBollingerIndicators ', tBollingerIndicators)
         const currentPrice = event.returnValues.currentPrice
         const upperBollingerBand = event.returnValues.upperBollingerBand
         const lowerBollingerBand = event.returnValues.lowerBollingerBand
@@ -198,15 +208,17 @@ function App(props) {
         // console.log('lowerBollingerBand ' + lowerBollingerBand)
 
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
-          // console.log("Selling token1");
+          console.log("Selling token1");
           callProofApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             tProofGenEnded = performance.now()
+            
             const body = JSON.parse(res)
-            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 1500000})
+            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
               // console.log('Trade receipt: ')
               // console.log(receipt)
               var tTradeEnded = performance.now()
+              // console.log('tTradeEnded ', tTradeEnded)
               gasUsed += receipt.gasUsed
               web3.eth.getBalance(account).then(res => {
                 var finalBalance = res
@@ -216,9 +228,10 @@ function App(props) {
                 var deltaTradingTime = (tTradeEnded - tProofGenEnded)
                 var deltaProofGenTime = (tProofGenEnded - tProofGenStarted)
                 var deltaGetIndicators = (tBollingerIndicators - t0)
+                var deltaProofVerifTime = (tProofVerified - tProofGenEnded)
                 // console.log("Trading took " + deltaTotalTime + " milliseconds.")
                 // console.log("Total gas used: ", gasUsed)
-                callPerformanceApi(deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed).then(()=> {
+                callPerformanceApi(deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime , deltaTradingTime, deltaTotalTime, gasUsed).then(()=> {
                   performanceRunCounter += 1
                   trade(numOfPeriods, periodLength)
                 })
@@ -232,7 +245,7 @@ function App(props) {
           callProofApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             tProofGenEnded = performance.now()
             const body = JSON.parse(res)
-            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 1).send({from: account, gas: 1500000})
+            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 1).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
               // console.log('Trade receipt: ')
               // console.log(receipt)
@@ -262,11 +275,10 @@ function App(props) {
       }
     })
   
-    await botContract.methods.calculateIndicators(numOfPeriods, periodLength).send({from: account, gas: 1500000})
+    await botContract.methods.calculateIndicators(numOfPeriods, periodLength).send({from: account, gas: 800000, gasPrice: "10000000000"})
     .on('receipt', function(receipt) {
       // console.log('calculateIndicators receipt: ')
       // console.log(receipt)
-      tBollingerIndicators = performance.now()
       gasUsed += receipt.gasUsed
       // console.log('gasUsed after calculateIndicators ', gasUsed)
     })

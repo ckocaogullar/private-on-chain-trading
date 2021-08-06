@@ -1,0 +1,812 @@
+{
+  "table": [
+    {
+      "deltaBalance": 462653066160128,
+      "deltaGetIndicators": 14143.79999999702,
+      "deltaProofGenTime": 1144.7999999970198,
+      "deltaTradingTime": 4898,
+      "deltaTotalTime": 20186.59999999404,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653114003456,
+      "deltaGetIndicators": 24835.90000000596,
+      "deltaProofGenTime": 1301.2999999970198,
+      "deltaTradingTime": 16097,
+      "deltaTotalTime": 42234.20000000298,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653102841856,
+      "deltaGetIndicators": 42966,
+      "deltaProofGenTime": 1582.2000000029802,
+      "deltaTradingTime": 63317.59999999404,
+      "deltaTotalTime": 107865.79999999702,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653106534400,
+      "deltaGetIndicators": 38008.10000000149,
+      "deltaProofGenTime": 1176.3000000044703,
+      "deltaTradingTime": 23236.29999999702,
+      "deltaTotalTime": 62420.70000000298,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653108162560,
+      "deltaGetIndicators": 12829.60000000149,
+      "deltaProofGenTime": 1365.5,
+      "deltaTradingTime": 14680.39999999851,
+      "deltaTotalTime": 28875.5,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653098803200,
+      "deltaGetIndicators": 24187.60000000149,
+      "deltaProofGenTime": 1277.5,
+      "deltaTradingTime": 34706,
+      "deltaTotalTime": 60171.10000000149,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653095768064,
+      "deltaGetIndicators": 16273.20000000298,
+      "deltaProofGenTime": 1093.1999999955297,
+      "deltaTradingTime": 22720.70000000298,
+      "deltaTotalTime": 40087.20000000298,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 191687042363392,
+      "deltaGetIndicators": 31070.60000000149,
+      "deltaProofGenTime": 1061.1000000014901,
+      "deltaTradingTime": 7916.39999999851,
+      "deltaTotalTime": 40048.10000000149,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 733619154741248,
+      "deltaGetIndicators": 27125.30000000447,
+      "deltaProofGenTime": 1127.5999999940395,
+      "deltaTradingTime": 18248.40000000596,
+      "deltaTotalTime": 46501.40000000596,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653091604480,
+      "deltaGetIndicators": 1227.8999999985099,
+      "deltaProofGenTime": 1272.3000000044703,
+      "deltaTradingTime": 15099.79999999702,
+      "deltaTotalTime": 17600,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653091717120,
+      "deltaGetIndicators": 19099.5,
+      "deltaProofGenTime": 1099.8000000044703,
+      "deltaTradingTime": 9747.59999999404,
+      "deltaTotalTime": 29946.89999999851,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653091143680,
+      "deltaGetIndicators": 35232.89999999851,
+      "deltaProofGenTime": 1067.8999999985099,
+      "deltaTradingTime": 9865.39999999851,
+      "deltaTotalTime": 46166.19999999553,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653097631744,
+      "deltaGetIndicators": 14372.20000000298,
+      "deltaProofGenTime": 1150.6000000014901,
+      "deltaTradingTime": 10599.60000000149,
+      "deltaTotalTime": 26122.40000000596,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653090488320,
+      "deltaGetIndicators": 23483.60000000149,
+      "deltaProofGenTime": 1068.3999999985099,
+      "deltaTradingTime": 27018.69999999553,
+      "deltaTotalTime": 51570.69999999553,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653091493888,
+      "deltaGetIndicators": 9481.59999999404,
+      "deltaProofGenTime": 1262.4000000059605,
+      "deltaTradingTime": 11318.79999999702,
+      "deltaTotalTime": 22062.79999999702,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653093963776,
+      "deltaGetIndicators": 8227.80000000447,
+      "deltaProofGenTime": 1027.5,
+      "deltaTradingTime": 28736.5,
+      "deltaTotalTime": 37991.80000000447,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653094526976,
+      "deltaGetIndicators": 17542.60000000149,
+      "deltaProofGenTime": 1001.2999999970198,
+      "deltaTradingTime": 3572.8000000044703,
+      "deltaTotalTime": 22116.70000000298,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653092179968,
+      "deltaGetIndicators": 7814,
+      "deltaProofGenTime": 1057.8000000044703,
+      "deltaTradingTime": 9441.29999999702,
+      "deltaTotalTime": 18313.10000000149,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653090951168,
+      "deltaGetIndicators": 36129.39999999851,
+      "deltaProofGenTime": 1142.6000000014901,
+      "deltaTradingTime": 14817,
+      "deltaTotalTime": 52089,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653091889152,
+      "deltaGetIndicators": 29600.10000000149,
+      "deltaProofGenTime": 1074.1000000014901,
+      "deltaTradingTime": 29490.60000000149,
+      "deltaTotalTime": 60164.80000000447,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653094316032,
+      "deltaGetIndicators": 11240.5,
+      "deltaProofGenTime": 1131.6000000014901,
+      "deltaTradingTime": 23926.60000000149,
+      "deltaTotalTime": 36298.70000000298,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653092167680,
+      "deltaGetIndicators": 27326.79999999702,
+      "deltaProofGenTime": 1203.6000000014901,
+      "deltaTradingTime": 13757.80000000447,
+      "deltaTotalTime": 42288.20000000298,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462653093070848,
+      "deltaGetIndicators": 5586.10000000149,
+      "deltaProofGenTime": 1283.3000000044703,
+      "deltaTradingTime": 21948.5,
+      "deltaTotalTime": 28817.90000000596,
+      "gasUsed": 462653
+    },
+    {
+      "deltaBalance": 462641092530176,
+      "deltaGetIndicators": 17381.69999999553,
+      "deltaProofGenTime": 1686,
+      "deltaTradingTime": 6166.70000000298,
+      "deltaTotalTime": 25234.39999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641091985408,
+      "deltaGetIndicators": 9058,
+      "deltaProofGenTime": 2035.8999999985099,
+      "deltaTradingTime": 53167.30000000447,
+      "deltaTotalTime": 64261.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641090023424,
+      "deltaGetIndicators": 10941.5,
+      "deltaProofGenTime": 1246.2000000029802,
+      "deltaTradingTime": 27883.10000000149,
+      "deltaTotalTime": 40070.80000000447,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641089290240,
+      "deltaGetIndicators": 17965.80000000447,
+      "deltaProofGenTime": 1098.7999999970198,
+      "deltaTradingTime": 9943.20000000298,
+      "deltaTotalTime": 29007.80000000447,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641093914624,
+      "deltaGetIndicators": 29045.89999999851,
+      "deltaProofGenTime": 1199.5,
+      "deltaTradingTime": 29937.5,
+      "deltaTotalTime": 60182.89999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641109164032,
+      "deltaGetIndicators": 31318.60000000149,
+      "deltaProofGenTime": 1321,
+      "deltaTradingTime": 27525,
+      "deltaTotalTime": 60164.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641090580480,
+      "deltaGetIndicators": 9342.70000000298,
+      "deltaProofGenTime": 1068.2999999970198,
+      "deltaTradingTime": 29608,
+      "deltaTotalTime": 40019,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641081153536,
+      "deltaGetIndicators": 6306.70000000298,
+      "deltaProofGenTime": 1047.3999999985099,
+      "deltaTradingTime": 5180.5,
+      "deltaTotalTime": 12534.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641080498176,
+      "deltaGetIndicators": 21818.60000000149,
+      "deltaProofGenTime": 1113.2000000029802,
+      "deltaTradingTime": 13449,
+      "deltaTotalTime": 36380.80000000447,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641079402496,
+      "deltaGetIndicators": 23494.70000000298,
+      "deltaProofGenTime": 1184.8999999985099,
+      "deltaTradingTime": 15414.39999999851,
+      "deltaTotalTime": 40094,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641064474624,
+      "deltaGetIndicators": 10579.89999999851,
+      "deltaProofGenTime": 1469.2999999970198,
+      "deltaTradingTime": 7925.4000000059605,
+      "deltaTotalTime": 19974.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641052073984,
+      "deltaGetIndicators": 16659,
+      "deltaProofGenTime": 1117.2000000029802,
+      "deltaTradingTime": 25387.89999999851,
+      "deltaTotalTime": 43164.10000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641046984704,
+      "deltaGetIndicators": 48949.90000000596,
+      "deltaProofGenTime": 1092.5,
+      "deltaTradingTime": 36638.79999999702,
+      "deltaTotalTime": 86681.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641046263808,
+      "deltaGetIndicators": 6490.5,
+      "deltaProofGenTime": 1350.1999999955297,
+      "deltaTradingTime": 11171.10000000149,
+      "deltaTotalTime": 19011.79999999702,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641041049600,
+      "deltaGetIndicators": 21838,
+      "deltaProofGenTime": 1087.2000000029802,
+      "deltaTradingTime": 7718,
+      "deltaTotalTime": 30643.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641039515648,
+      "deltaGetIndicators": 11120.19999999553,
+      "deltaProofGenTime": 1234.8000000044703,
+      "deltaTradingTime": 22050,
+      "deltaTotalTime": 34405,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641036085248,
+      "deltaGetIndicators": 18077.89999999851,
+      "deltaProofGenTime": 1089.7000000029802,
+      "deltaTradingTime": 8585.20000000298,
+      "deltaTotalTime": 27752.80000000447,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641037123584,
+      "deltaGetIndicators": 5780.80000000447,
+      "deltaProofGenTime": 1121.7999999970198,
+      "deltaTradingTime": 46370.80000000447,
+      "deltaTotalTime": 53273.40000000596,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641035974656,
+      "deltaGetIndicators": 12281.10000000149,
+      "deltaProofGenTime": 1197.2000000029802,
+      "deltaTradingTime": 17634,
+      "deltaTotalTime": 31112.40000000596,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641035159552,
+      "deltaGetIndicators": 26324.30000000447,
+      "deltaProofGenTime": 1104.6000000014901,
+      "deltaTradingTime": 32701.29999999702,
+      "deltaTotalTime": 60130.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641035161600,
+      "deltaGetIndicators": 5975.19999999553,
+      "deltaProofGenTime": 1113.3000000044703,
+      "deltaTradingTime": 42279.89999999851,
+      "deltaTotalTime": 49368.39999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641034393600,
+      "deltaGetIndicators": 50090.69999999553,
+      "deltaProofGenTime": 1162.2000000029802,
+      "deltaTradingTime": 13335.29999999702,
+      "deltaTotalTime": 64588.19999999553,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641032880128,
+      "deltaGetIndicators": 89404.5,
+      "deltaProofGenTime": 1094.7999999970198,
+      "deltaTradingTime": 7331.30000000447,
+      "deltaTotalTime": 97830.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641032656896,
+      "deltaGetIndicators": 9191.60000000149,
+      "deltaProofGenTime": 1091.0999999940395,
+      "deltaTradingTime": 16669.90000000596,
+      "deltaTotalTime": 26952.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641031458816,
+      "deltaGetIndicators": 11507.10000000149,
+      "deltaProofGenTime": 1041,
+      "deltaTradingTime": 13783.60000000149,
+      "deltaTotalTime": 26331.70000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641030264832,
+      "deltaGetIndicators": 5578.39999999851,
+      "deltaProofGenTime": 1264.6000000014901,
+      "deltaTradingTime": 22908.89999999851,
+      "deltaTotalTime": 29751.89999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641028794368,
+      "deltaGetIndicators": 59569,
+      "deltaProofGenTime": 1125.1000000014901,
+      "deltaTradingTime": 21885.39999999851,
+      "deltaTotalTime": 82579.5,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641027487744,
+      "deltaGetIndicators": 68726.5,
+      "deltaProofGenTime": 1175,
+      "deltaTradingTime": 22203.60000000149,
+      "deltaTotalTime": 92105.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641027297280,
+      "deltaGetIndicators": 6754.30000000447,
+      "deltaProofGenTime": 1082,
+      "deltaTradingTime": 24721.69999999553,
+      "deltaTotalTime": 32558,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641026369536,
+      "deltaGetIndicators": 23729.79999999702,
+      "deltaProofGenTime": 1096.7000000029802,
+      "deltaTradingTime": 17286.69999999553,
+      "deltaTotalTime": 42113.19999999553,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025173504,
+      "deltaGetIndicators": 26783.5,
+      "deltaProofGenTime": 1061.6999999955297,
+      "deltaTradingTime": 22398.5,
+      "deltaTotalTime": 50243.69999999553,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 36519.39999999851,
+      "deltaProofGenTime": 1241,
+      "deltaTradingTime": 22436.39999999851,
+      "deltaTotalTime": 60196.79999999702,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025445888,
+      "deltaGetIndicators": 20527.90000000596,
+      "deltaProofGenTime": 1137.6999999955297,
+      "deltaTradingTime": 22333.30000000447,
+      "deltaTotalTime": 43998.90000000596,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025908736,
+      "deltaGetIndicators": 11733,
+      "deltaProofGenTime": 1324.1999999955297,
+      "deltaTradingTime": 43176.5,
+      "deltaTotalTime": 56233.69999999553,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024980992,
+      "deltaGetIndicators": 21698.19999999553,
+      "deltaProofGenTime": 1233.1000000014901,
+      "deltaTradingTime": 17170.80000000447,
+      "deltaTotalTime": 40102.10000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 6587.0999999940395,
+      "deltaProofGenTime": 1149.1000000014901,
+      "deltaTradingTime": 14633,
+      "deltaTotalTime": 22369.19999999553,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 7746.5,
+      "deltaProofGenTime": 1347.0999999940395,
+      "deltaTradingTime": 48651.40000000596,
+      "deltaTotalTime": 57745,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024710656,
+      "deltaGetIndicators": 27274,
+      "deltaProofGenTime": 1420.7999999970198,
+      "deltaTradingTime": 11375.40000000596,
+      "deltaTotalTime": 40070.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 33763.89999999851,
+      "deltaProofGenTime": 1191.6000000014901,
+      "deltaTradingTime": 36103,
+      "deltaTotalTime": 71058.5,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024712704,
+      "deltaGetIndicators": 59473.39999999851,
+      "deltaProofGenTime": 1129.1000000014901,
+      "deltaTradingTime": 11934.69999999553,
+      "deltaTotalTime": 72537.19999999553,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025253376,
+      "deltaGetIndicators": 10327.39999999851,
+      "deltaProofGenTime": 1193.5,
+      "deltaTradingTime": 10671,
+      "deltaTotalTime": 22191.89999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 10137.29999999702,
+      "deltaProofGenTime": 1151.4000000059605,
+      "deltaTradingTime": 8675,
+      "deltaTotalTime": 19963.70000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025253376,
+      "deltaGetIndicators": 32807,
+      "deltaProofGenTime": 1186.3999999985099,
+      "deltaTradingTime": 10199,
+      "deltaTotalTime": 44192.39999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025443840,
+      "deltaGetIndicators": 11049,
+      "deltaProofGenTime": 1195.2000000029802,
+      "deltaTradingTime": 7734.79999999702,
+      "deltaTotalTime": 19979,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 16568.40000000596,
+      "deltaProofGenTime": 1253.7999999970198,
+      "deltaTradingTime": 14261.39999999851,
+      "deltaTotalTime": 32083.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025253376,
+      "deltaGetIndicators": 8976.20000000298,
+      "deltaProofGenTime": 1224.7999999970198,
+      "deltaTradingTime": 17754.70000000298,
+      "deltaTotalTime": 27955.70000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024712704,
+      "deltaGetIndicators": 17998.5,
+      "deltaProofGenTime": 1201,
+      "deltaTradingTime": 22678.60000000149,
+      "deltaTotalTime": 41878.10000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024790528,
+      "deltaGetIndicators": 6192,
+      "deltaProofGenTime": 1163.3999999985099,
+      "deltaTradingTime": 12604.70000000298,
+      "deltaTotalTime": 19960.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 36784.69999999553,
+      "deltaProofGenTime": 1103.5,
+      "deltaTradingTime": 2343.3000000044703,
+      "deltaTotalTime": 40231.5,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 10457.20000000298,
+      "deltaProofGenTime": 1235.6000000014901,
+      "deltaTradingTime": 78622.60000000149,
+      "deltaTotalTime": 90315.40000000596,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024980992,
+      "deltaGetIndicators": 20796.19999999553,
+      "deltaProofGenTime": 1544.5,
+      "deltaTradingTime": 9641.10000000149,
+      "deltaTotalTime": 31981.89999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 8814.79999999702,
+      "deltaProofGenTime": 1057.8000000044703,
+      "deltaTradingTime": 12044,
+      "deltaTotalTime": 21916.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 5487.20000000298,
+      "deltaProofGenTime": 1241,
+      "deltaTradingTime": 22137.69999999553,
+      "deltaTotalTime": 28865.89999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 12925.89999999851,
+      "deltaProofGenTime": 1341.7000000029802,
+      "deltaTradingTime": 7991.60000000149,
+      "deltaTotalTime": 22259.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025443840,
+      "deltaGetIndicators": 10916.10000000149,
+      "deltaProofGenTime": 1176.3999999985099,
+      "deltaTradingTime": 19554.10000000149,
+      "deltaTotalTime": 31646.60000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025445888,
+      "deltaGetIndicators": 15971,
+      "deltaProofGenTime": 1164.5,
+      "deltaTradingTime": 22633.89999999851,
+      "deltaTotalTime": 39769.39999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025445888,
+      "deltaGetIndicators": 10153.90000000596,
+      "deltaProofGenTime": 1398.2999999970198,
+      "deltaTradingTime": 16881.60000000149,
+      "deltaTotalTime": 28433.80000000447,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025716224,
+      "deltaGetIndicators": 14260.60000000149,
+      "deltaProofGenTime": 1183.8999999985099,
+      "deltaTradingTime": 11830.60000000149,
+      "deltaTotalTime": 27275.10000000149,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024983040,
+      "deltaGetIndicators": 8782.79999999702,
+      "deltaProofGenTime": 1226.9000000059605,
+      "deltaTradingTime": 12337.69999999553,
+      "deltaTotalTime": 22347.39999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641024980992,
+      "deltaGetIndicators": 40633.29999999702,
+      "deltaProofGenTime": 1136,
+      "deltaTradingTime": 10837.10000000149,
+      "deltaTotalTime": 52606.39999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641025988608,
+      "deltaGetIndicators": 18766.29999999702,
+      "deltaProofGenTime": 1162.7999999970198,
+      "deltaTradingTime": 22129.60000000149,
+      "deltaTotalTime": 42058.79999999702,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641029621760,
+      "deltaGetIndicators": 177350.40000000596,
+      "deltaProofGenTime": 1268.6000000014901,
+      "deltaTradingTime": 38267.10000000149,
+      "deltaTotalTime": 216886.20000000298,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462641032654848,
+      "deltaGetIndicators": 14555,
+      "deltaProofGenTime": 1485,
+      "deltaTradingTime": 17240.80000000447,
+      "deltaTotalTime": 33280.89999999851,
+      "gasUsed": 462641
+    },
+    {
+      "deltaBalance": 462629032114176,
+      "deltaGetIndicators": 19795.5,
+      "deltaProofGenTime": 1171,
+      "deltaTradingTime": 13060.10000000149,
+      "deltaTotalTime": 34026.60000000149,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629030758400,
+      "deltaGetIndicators": 39997.89999999851,
+      "deltaProofGenTime": 1415,
+      "deltaTradingTime": 33866.60000000149,
+      "deltaTotalTime": 75279.5,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629027215360,
+      "deltaGetIndicators": 26255.20000000298,
+      "deltaProofGenTime": 1706.7000000029802,
+      "deltaTradingTime": 17462.09999999404,
+      "deltaTotalTime": 45424,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629025826816,
+      "deltaGetIndicators": 6819.29999999702,
+      "deltaProofGenTime": 1280.6000000014901,
+      "deltaTradingTime": 28756.70000000298,
+      "deltaTotalTime": 36856.60000000149,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024983040,
+      "deltaGetIndicators": 24559.10000000149,
+      "deltaProofGenTime": 1089.7000000029802,
+      "deltaTradingTime": 10109.89999999851,
+      "deltaTotalTime": 35758.70000000298,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629025443840,
+      "deltaGetIndicators": 19347.80000000447,
+      "deltaProofGenTime": 1473.6999999955297,
+      "deltaTradingTime": 8991.30000000447,
+      "deltaTotalTime": 29812.80000000447,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629025173504,
+      "deltaGetIndicators": 45120.59999999404,
+      "deltaProofGenTime": 1076.1000000014901,
+      "deltaTradingTime": 22118,
+      "deltaTotalTime": 68314.69999999553,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024983040,
+      "deltaGetIndicators": 40949.5,
+      "deltaProofGenTime": 1216.2999999970198,
+      "deltaTradingTime": 18009.60000000149,
+      "deltaTotalTime": 60175.39999999851,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024518144,
+      "deltaGetIndicators": 6348.79999999702,
+      "deltaProofGenTime": 1190,
+      "deltaTradingTime": 12377.10000000149,
+      "deltaTotalTime": 19915.89999999851,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024520192,
+      "deltaGetIndicators": 52660.39999999851,
+      "deltaProofGenTime": 1096.7999999970198,
+      "deltaTradingTime": 16035.60000000149,
+      "deltaTotalTime": 69792.89999999851,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629025443840,
+      "deltaGetIndicators": 43891.10000000149,
+      "deltaProofGenTime": 1120.6999999955297,
+      "deltaTradingTime": 25808.30000000447,
+      "deltaTotalTime": 70820.10000000149,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024712704,
+      "deltaGetIndicators": 6156.10000000149,
+      "deltaProofGenTime": 1236,
+      "deltaTradingTime": 38925.29999999702,
+      "deltaTotalTime": 46317.39999999851,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024788480,
+      "deltaGetIndicators": 20234.80000000447,
+      "deltaProofGenTime": 1251.5,
+      "deltaTradingTime": 6062.0999999940395,
+      "deltaTotalTime": 27548.39999999851,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629025445888,
+      "deltaGetIndicators": 5063.10000000149,
+      "deltaProofGenTime": 1447.7999999970198,
+      "deltaTradingTime": 25971.5,
+      "deltaTotalTime": 32482.39999999851,
+      "gasUsed": 462629
+    },
+    {
+      "deltaBalance": 462629024790528,
+      "deltaGetIndicators": 6877.10000000149,
+      "deltaProofGenTime": 1340.2999999970198,
+      "deltaTradingTime": 27514.60000000149,
+      "deltaTotalTime": 35732,
+      "gasUsed": 462629
+    }
+  ]
+}
