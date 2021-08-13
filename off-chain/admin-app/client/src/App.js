@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Web3 from 'web3'
 import './App.css'
 import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
-import { BUY_VERIFIER_ABI, BUY_VERIFIER_CONTRACT_ADDRESS, SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS } from './verifier_config'
+import DVF from 'dvf-client-js'
+const starkPrivateKey = '743a0ff439f6ed52ed1fef395d6cea58af02088c91528b07048cc5f922d3f65'
 
 
 const upperBoundPercentage = 100
@@ -139,6 +140,50 @@ function App(props) {
     .on('receipt', function (receipt) {
       // console.log(receipt)
     })
+  }
+
+  const deversifiBuyOrder = async () => {
+    const price = 200
+  const amount = '0.05'
+
+  // order buy params
+  const buy = {
+    symbol: "ETH:USDT",
+    amount,
+    price,
+    starkPrivateKey
+  }
+
+  const dvfConfig = {
+    api: 'https://api.deversifi.com',
+    wallet: {
+      type: 'tradingKey',
+      meta: {
+        starkPrivateKey
+      }
+    }
+  }
+
+  const dvf = await DVF(web3, dvfConfig);
+
+  // Buy order placing
+  const rBuyOrder = await dvf.submitOrder(buy)
+  console.info('buy order receipt', JSON.stringify(rBuyOrder))
+  }
+
+  const registerDeversifi = async () => {
+
+    const dvfConfig = {
+      api: 'https://api.deversifi.com',
+      dataApi: 'https://api.deversifi.com'
+    }
+
+    const dvf = await DVF(web3, dvfConfig)
+
+    const keyPair = await dvf.stark.createKeyPair(starkPrivateKey)
+  
+    const registerResponse = await dvf.register(keyPair.starkPublicKey)
+    console.log(registerResponse)
   }
 
   // Subscribe to the BollingerIndicators event
@@ -293,6 +338,8 @@ function App(props) {
       <button onClick={()=>getCurrentPrice()}>Get the current price</button>
       <button onClick={()=>test()}>Test</button>
       <button onClick={()=>trade(20, 1800)}>Trade</button>
+      <button onClick={()=>deversifiBuyOrder()}>Buy</button>
+      <button onClick={()=>registerDeversifi()}>Register</button>
     </div>
   );
 }
