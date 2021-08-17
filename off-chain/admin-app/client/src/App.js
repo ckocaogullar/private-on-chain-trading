@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react'
 import Web3 from 'web3'
 import './App.css'
 import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
+import { SELL_VERIFIER_CONTRACT_ADDRESS, SELL_VERIFIER_ABI } from './verifier_config'
 import DVF from 'dvf-client-js'
+import proof from './proof.json'
 const starkPrivateKey = '743a0ff439f6ed52ed1fef395d6cea58af02088c91528b07048cc5f922d3f65'
 
 
@@ -10,7 +12,7 @@ const upperBoundPercentage = 100
 const lowerBoundPercentage = 100
 
 var performanceRunCounter = 0
-const performanceRunThreshold = 100
+const performanceRunThreshold = 1
 
 var indicatorsCaught = false
 var tProofGenStarted = null
@@ -19,7 +21,9 @@ function App(props) {
   const [account, setAccount] = useState(null);
   //const [subscribedUser, setSubscribedUser] = useState();
   const [botContract, setBotContract] = useState(null);
+  const [sellVerifContract, setVerifContract] = useState(null);
   const [botSocket, setBotSocket] = useState(null);
+  const [sellVerifSocket, setVerifSocket] = useState(null);
   const [web3, setWeb3] = useState();
   // load blockchain data in initial render
   useEffect(async () => {
@@ -49,6 +53,11 @@ function App(props) {
         setBotContract(botContract);
         const botSocket = new web3Socket.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
         setBotSocket(botSocket)
+
+        const sellVerifContract = new web3.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
+        setVerifContract(sellVerifContract);
+        const sellVerifSocket = new web3.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
+        setVerifSocket(sellVerifSocket);
 
         // Request account access if needed and get the accounts
         await window.ethereum.enable();
@@ -142,20 +151,90 @@ function App(props) {
     })
   }
 
-  const deversifiBuyOrder = async () => {
-    const price = 200
-  const amount = '0.05'
+  const depositToDeversifi = async () => {
+    const dvfConfig = {
+      api: 'https://api.stg.deversifi.com',
+      dataApi: 'https://api.stg.deversifi.com'
+    }
+
+    const dvf = await DVF(web3, dvfConfig)
+
+    //const depositResponse = await dvf.deposit('ETH', 1, starkPrivateKey)
+    const depositResponse = await dvf.depositV2({ token: 'ETH', amount: 1 })
+
+    
+    await waitForDepositCreditedOnChain(dvf, depositResponse)
+    
+  
+    console.log(depositResponse)
+  
+  }
+
+
+  const waitForDepositCreditedOnChain = async (dvf, deposit) => {
+      console.log('waiting for deposit to be credited on chain...')
+    
+      while (true) {
+        // TODO: add getDeposit to pub-api and client and use it here.
+        const deposits = await dvf.getDeposits(deposit.token)
+        console.log('deposits', deposits)
+        console.log('deposit._id', deposit._id)
+        if (deposits.find(d => d._id === deposit._id && d.status === 'ready')) {
+          break
+        }
+      }
+    
+  }
+
+  const getDeversifiBalance = async () => {
+    const dvfConfig = {
+      api: 'https://api.stg.deversifi.com',
+      dataApi: 'https://api.stg.deversifi.com'
+    }
+
+    const dvf = await DVF(web3, dvfConfig)
+
+    const getBalanceResponse = await dvf.getBalance()
+
+    console.log(getBalanceResponse)
+  
+  }
+
+  const withdrawFromDeversifi = async () => {
+
+    const token = 'ETH'
+    const amount = 0.1
+
+    const dvfConfig = {
+      api: 'https://api.stg.deversifi.com',
+      dataApi: 'https://api.stg.deversifi.com'
+    }
+
+    const dvf = await DVF(web3, dvfConfig)
+
+    const withdrawalResponse = await dvf.withdraw(
+      token,
+      amount,
+      starkPrivateKey
+    )
+
+    console.log(withdrawalResponse)
+  
+  }
+
+  // Buy/Sell token1 with token0 (negative amount for buy, positive amount for sell)
+  const deversifiBuySellOrder = async (price, amount) => {
 
   // order buy params
-  const buy = {
-    symbol: "ETH:USDT",
-    amount,
+  const params = {
+    symbol: "ETH:USDC",
+    amount: amount,
     price,
     starkPrivateKey
   }
 
   const dvfConfig = {
-    api: 'https://api.deversifi.com',
+    api: 'https://api.stg.deversifi.com',
     wallet: {
       type: 'tradingKey',
       meta: {
@@ -167,15 +246,15 @@ function App(props) {
   const dvf = await DVF(web3, dvfConfig);
 
   // Buy order placing
-  const rBuyOrder = await dvf.submitOrder(buy)
-  console.info('buy order receipt', JSON.stringify(rBuyOrder))
+  const rOrder = await dvf.submitOrder(params)
+  console.info('order receipt', JSON.stringify(rOrder))
   }
 
   const registerDeversifi = async () => {
 
     const dvfConfig = {
-      api: 'https://api.deversifi.com',
-      dataApi: 'https://api.deversifi.com'
+      api: 'https://api.stg.deversifi.com',
+      dataApi: 'https://api.stg.deversifi.com'
     }
 
     const dvf = await DVF(web3, dvfConfig)
@@ -184,6 +263,25 @@ function App(props) {
   
     const registerResponse = await dvf.register(keyPair.starkPublicKey)
     console.log(registerResponse)
+  }
+
+  const testVerify = async () => {
+    console.log('proof.proof.a', proof.proof.a)
+      console.log('proof.proof.b', proof.proof.b)
+      console.log('proof.proof.c', proof.proof.c)
+      console.log('proof.inputs', proof.inputs)
+    sellVerifSocket.once('Verified', {}, (error, event) => {
+      if(error){
+        console.log(error)
+      } else {
+        console.log('Verified event caught ', event)
+      }
+    })
+
+    sellVerifContract.methods.verifyTx(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({from: account, gas: 800000, gasPrice: "10000000000"})
+    .on('receipt', function(receipt) {
+      console.log('testVerify verification call receipt: ', receipt)
+    })
   }
 
   // Subscribe to the BollingerIndicators event
@@ -227,13 +325,30 @@ function App(props) {
           // console.log('TestEvent Event caught: ', event)
         }
       })
-      botSocket.once('ProofVerified', {}, (error, event) => {
+      botSocket.once('SellProofVerified', {}, (error, event) => {
       if (error) {
         // console.log('Could not get event ' + error)
       } else {
         tProofVerified = performance.now()
         // console.log('tProofVerified ', tProofVerified)
-        // console.log('ProofVerified Event caught: ', event)
+        console.log('SellProofVerified Event caught: ', event)
+      }
+    })
+    botSocket.once('BuyProofVerified', {}, (error, event) => {
+      if (error) {
+        // console.log('Could not get event ' + error)
+      } else {
+        tProofVerified = performance.now()
+        // console.log('tProofVerified ', tProofVerified)
+        console.log('BuyProofVerified Event caught: ', event)
+      }
+    })
+
+    botSocket.once('TestProof', {}, (error, event) => {
+      if(error) {
+        console.log('Error catching TestProof event')
+      } else {
+        console.log('TestProof event caught: ', event)
       }
     })
     
@@ -254,11 +369,20 @@ function App(props) {
 
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
           console.log("Selling token1");
+          console.log("currentPrice: ", currentPrice);
+          console.log("upperBollingerBand: ", upperBollingerBand);
+          console.log("upperBoundPercentage: ", upperBoundPercentage);
           callProofApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             tProofGenEnded = performance.now()
             
-            const body = JSON.parse(res)
-            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 800000, gasPrice: "10000000000"})
+            const proof = JSON.parse(res)
+            console.log('proof', proof)
+            console.log('proof.proof.a', proof.proof.a)
+            console.log('proof.proof.b', proof.proof.b)
+            console.log('proof.proof.c', proof.proof.c)
+            console.log('proof.proof.inputs', proof.inputs)
+            testVerify()
+            botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs, 1).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
               // console.log('Trade receipt: ')
               // console.log(receipt)
@@ -286,11 +410,12 @@ function App(props) {
           
           //await botContract.methods.trade()
        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
-          // console.log("Buying token1");
+          console.log("Buying token1");
           callProofApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             tProofGenEnded = performance.now()
+            console.log('res', res)
             const body = JSON.parse(res)
-            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 1).send({from: account, gas: 800000, gasPrice: "10000000000"})
+            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
               // console.log('Trade receipt: ')
               // console.log(receipt)
@@ -335,11 +460,13 @@ function App(props) {
     <div className="container">
       <h1>Hello, Admin!</h1>
       <p>Your account: {account}</p>
-      <button onClick={()=>getCurrentPrice()}>Get the current price</button>
-      <button onClick={()=>test()}>Test</button>
-      <button onClick={()=>trade(20, 1800)}>Trade</button>
-      <button onClick={()=>deversifiBuyOrder()}>Buy</button>
-      <button onClick={()=>registerDeversifi()}>Register</button>
+      <button onClick={()=>getCurrentPrice()}>Get current ETH:USDC price on Uniswap</button>
+      <button onClick={()=>trade(20, 1800)}>Trigger On-Chain Trading</button>
+      <button onClick={()=>registerDeversifi()}>Register to Deversifi</button>
+      <button onClick={()=>depositToDeversifi()}>Deposit to Deversifi</button>
+      <button onClick={()=>withdrawFromDeversifi()}>Withdraw</button>
+      <button onClick={()=>getDeversifiBalance()}>Get Deversifi Balance</button>
+      <button onClick={()=>testVerify()}>Test Verification</button>
     </div>
   );
 }

@@ -5,3 +5,5 @@ cache
 artifacts
 
 off-chain/algo_picker/results/.dates.json.icloud
+
+*.icloud

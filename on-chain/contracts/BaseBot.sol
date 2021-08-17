@@ -33,8 +33,8 @@ contract BaseBot {
 
     // Uncomment these values for Ropsten network
     // ------------------------------------------------------------------------
-    address buyVerifierAddress = 0xb300f7880C5290257CC5B0DD47029d4B48BF3cF7;
-    address sellVerifierAddress = 0xf6238aBF309c6651e1658149d13c5EDBE7d42040;
+    address buyVerifierAddress = 0x71813BdA3Cb125a4Ac7dc3e84caa2E6C4930f70C;
+    address sellVerifierAddress = 0x30a5E6416AA02f9661d5623Fd4399E4ae02e904E;
     
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -66,7 +66,10 @@ contract BaseBot {
     event UserSubscribed(address subscriberAddress);
     event SubscriptionConfirmed(address userAddress);
     event TestEvent(uint256 input1, uint256 input2, uint256 input3);
-    event ProofVerified(bool verified);
+    event SellProofVerified(bool verified, uint256 currentPrice);
+    event BuyProofVerified(bool verified, uint256 currentPrice);
+    event TestProof(uint a1, uint a2);
+
     event BollingerIndicators(
         uint256 upperBollingerBand,
         uint256 lowerBollingerBand,
@@ -130,14 +133,15 @@ contract BaseBot {
     // @param inputs of the proof
     // @param buySellFlag indicates buy or sell signal. 0 indicates BUY, 1 indicates SELL, 2 indicates HOLD
     function trade(
-        uint256[2] memory a,
-        uint256[2][2] memory b,
-        uint256[2] memory c,
-        uint256[3] memory inputs,
+        uint[2] memory a,
+        uint[2][2] memory b,
+        uint[2] memory c,
+        uint[3] memory inputs,
         uint16 buySellFlag
     ) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
         require(msg.sender == admin, "Only the admin can invoke trading");
+        emit TestProof(a[0], a[1]);
 
         // Check if the prover used the correct public parameter - 1
         require(inputs[0] == currentPrice);
@@ -149,23 +153,17 @@ contract BaseBot {
             require(inputs[1] == lowerBollingerBand);
 
             if (IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs)) {
-                emit ProofVerified(true);
+                emit BuyProofVerified(true, currentPrice);
 
             } else {
-                emit ProofVerified(false);
+                emit BuyProofVerified(false, 0);
 
             }
         } else if (buySellFlag == 1) { // SELL
             // Check if the prover used the correct public parameter - 2
             require(inputs[1] == upperBollingerBand);
-
-            if (IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs)) {
-                emit ProofVerified(true);
-
-            } else {
-                emit ProofVerified(false);
-                
-            }
+            bool verified = IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs);
+            emit SellProofVerified(verified, currentPrice);
         } // else HOLD
     }
 
@@ -349,9 +347,9 @@ contract BaseBot {
 
 interface IVerifier {
     function verifyTx(
-        uint256[2] memory a,
-        uint256[2][2] memory b,
-        uint256[2] memory c,
-        uint256[3] memory input
+        uint[2] memory a,
+        uint[2][2] memory b,
+        uint[2] memory c,
+        uint[3] memory input
     ) external view returns (bool r);
 }

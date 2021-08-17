@@ -13,7 +13,7 @@ async function main() {
     deployer.address
   );
 
-  console.log("Account balance:", (await deployer.getBalance()).toString());
+  //console.log("Account balance:", (await deployer.getBalance()).toString());
 
   const BuyVerifier = await hre.ethers.getContractFactory("contracts/BuyVerifier.sol:Verifier");
   const buyVerifier = await BuyVerifier.deploy();
