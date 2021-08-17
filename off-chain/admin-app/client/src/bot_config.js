@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0xf1E32446A509DAA218a0F53CB3B01e2feD28a4A7'
+export const BOT_CONTRACT_ADDRESS = '0xaA08cc5A9fdEb4cAc78Bd9fD66fbfddf22623e80'
 // Ropsten address for the previous contract version
 //export const BOT_CONTRACT_ADDRESS = '0x97dEF834E0fd1e6325235850ee2bA3192A5f0d77'
 
@@ -68,9 +68,34 @@ export const BOT_ABI = [
         "internalType": "bool",
         "name": "verified",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "currentPrice",
+        "type": "uint256"
       }
     ],
-    "name": "ProofVerified",
+    "name": "BuyProofVerified",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "verified",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "currentPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "SellProofVerified",
     "type": "event"
   },
   {
@@ -92,19 +117,19 @@ export const BOT_ABI = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "stdDev",
+        "name": "input1",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "upperBollinger",
+        "name": "input2",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lowerBollinger",
+        "name": "input3",
         "type": "uint256"
       }
     ],
@@ -116,12 +141,18 @@ export const BOT_ABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint32",
-        "name": "flag",
-        "type": "uint32"
+        "internalType": "uint256",
+        "name": "a1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "a2",
+        "type": "uint256"
       }
     ],
-    "name": "TradeComplete",
+    "name": "TestProof",
     "type": "event"
   },
   {
@@ -151,18 +182,7 @@ export const BOT_ABI = [
       }
     ],
     "name": "bollinger",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "upperBollingerBand",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lowerBollingerBand",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -292,29 +312,6 @@ export const BOT_ABI = [
       }
     ],
     "name": "subscribeUser",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "swap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

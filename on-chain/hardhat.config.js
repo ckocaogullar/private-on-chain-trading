@@ -1,7 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ganache");
 
-const ROPSTEN_PRIVATE_KEY1 = "a0869b1386566d0a7b325787216eeee27ac8527a02e84d6e70baea2ceaf2ee57"
+//const ROPSTEN_PRIVATE_KEY1 = "a0869b1386566d0a7b325787216eeee27ac8527a02e84d6e70baea2ceaf2ee57"
 const ROPSTEN_PRIVATE_KEY2 = "bc6d600f6bf2a5ad83377dd8743e5fe30b14064ea8e082f3a83ee704cca0cfc0"
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -42,7 +42,7 @@ module.exports = {
   networks: {
     ropsten: {
       url: `https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22`,
-      accounts: [`0x${ROPSTEN_PRIVATE_KEY1}`, `0x${ROPSTEN_PRIVATE_KEY2}`, ],
+      accounts: [`0x${ROPSTEN_PRIVATE_KEY2}`],
     },
     hardhat: {
       chainId: 1337,

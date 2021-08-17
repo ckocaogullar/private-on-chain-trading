@@ -2,13 +2,10 @@
 // This file is LGPL3 Licensed
 pragma solidity ^0.6.1;
 
-import "hardhat/console.sol";
-
 /**
  * @title Elliptic curve operations on twist points for alt_bn128
  * @author Mustafa Al-Bassam (mus@musalbas.com)
  * @dev Homepage: https://github.com/musalbas/solidity-BN256G2
- 
  */
 
 library BN256G2 {
@@ -546,8 +543,6 @@ library Pairing {
 
 contract Verifier {
     using Pairing for *;
-
-    event Verified(bool verified);
     struct VerifyingKey {
         Pairing.G1Point alpha;
         Pairing.G2Point beta;
@@ -593,34 +588,19 @@ contract Verifier {
             uint[2] memory a,
             uint[2][2] memory b,
             uint[2] memory c, uint[3] memory input
-        ) public returns (bool r) {
+        ) public view returns (bool r) {
         Proof memory proof;
         proof.a = Pairing.G1Point(a[0], a[1]);
         proof.b = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);
         proof.c = Pairing.G1Point(c[0], c[1]);
         uint[] memory inputValues = new uint[](3);
-        console.log('a[0] ', a[0]);
-        console.log('a[1] ', a[1]);
-        console.log('b[0][0] ', b[0][0]);
-        console.log('b[0][1] ', b[0][1]);
-        console.log('b[1][0] ', b[1][0]);
-        console.log('b[1][1] ', b[1][1]);
-        console.log('c[0] ', c[0]);
-        console.log('c[1] ', c[1]);
-        console.log('input[0] ', input[0]);
-        console.log('input[1] ', input[1]);
-        console.log('input[2] ', input[2]);
         
         for(uint i = 0; i < input.length; i++){
             inputValues[i] = input[i];
         }
         if (verify(inputValues, proof) == 0) {
-            emit Verified(true);
-            console.log('Proof verified: TRUE');
             return true;
         } else {
-            console.log('Proof verified: FALSE');
-            emit Verified(false);
             return false;
         }
     }
