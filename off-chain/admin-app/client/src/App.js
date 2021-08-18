@@ -56,7 +56,7 @@ function App(props) {
 
         const sellVerifContract = new web3.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
         setVerifContract(sellVerifContract);
-        const sellVerifSocket = new web3.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
+        const sellVerifSocket = new web3Socket.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
         setVerifSocket(sellVerifSocket);
 
         // Request account access if needed and get the accounts
@@ -374,15 +374,15 @@ function App(props) {
           console.log("upperBoundPercentage: ", upperBoundPercentage);
           callProofApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
             tProofGenEnded = performance.now()
-            
-            const proof = JSON.parse(res)
+            const data = JSON.parse(res)
+            const proof = data.proof
+            const verificationKey = data.verificationKey
             console.log('proof', proof)
             console.log('proof.proof.a', proof.proof.a)
             console.log('proof.proof.b', proof.proof.b)
             console.log('proof.proof.c', proof.proof.c)
             console.log('proof.proof.inputs', proof.inputs)
-            testVerify()
-            botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs, 1).send({from: account, gas: 800000, gasPrice: "10000000000"})
+            botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs, verificationKey.alpha, verificationKey.beta, verificationKey.gamma, verificationKey.delta, verificationKey.gamma_abc, 1).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
               // console.log('Trade receipt: ')
               // console.log(receipt)

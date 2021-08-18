@@ -35,14 +35,14 @@ app.post('/api/proof', (req, res) => {
     
         console.log(`createProof stdout:\n${stdout}`);
         
-        const rawdata = fs.readFileSync('../zokrates-proof/' + req.body.post[0] + '/proof.json')
-        const proof = JSON.parse(rawdata)
-        // proof.a = buyProof.proof.a;
-        // proof.b = buyProof.proof.b;
-        // proof.c = buyProof.proof.c;
-        // proof.inputs = buyProof.inputs;
+        const rawProofdata = fs.readFileSync('../zokrates-proof/' + req.body.post[0] + '/proof.json')
+        const proof = JSON.parse(rawProofdata)
+        const rawKeyData = fs.readFileSync('../zokrates-proof/' + req.body.post[0] + '/verification.key')
+        const verificationKey = JSON.parse(rawKeyData)
+
         console.log(proof);
-        res.send(proof)
+        console.log(verificationKey)
+        res.send({proof: proof, verificationKey: verificationKey})
     });
 })
 

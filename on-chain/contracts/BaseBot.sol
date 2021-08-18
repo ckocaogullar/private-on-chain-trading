@@ -33,8 +33,8 @@ contract BaseBot {
 
     // Uncomment these values for Ropsten network
     // ------------------------------------------------------------------------
-    address buyVerifierAddress = 0x71813BdA3Cb125a4Ac7dc3e84caa2E6C4930f70C;
-    address sellVerifierAddress = 0x30a5E6416AA02f9661d5623Fd4399E4ae02e904E;
+    address buyVerifierAddress = 0xbc12D817Ed67b3e0C11F87E4b9241DC45dE9ed34;
+    address sellVerifierAddress = 0x47c6017175d201fa7cb93574a9F7B23e2355F548;
     
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -137,6 +137,11 @@ contract BaseBot {
         uint[2][2] memory b,
         uint[2] memory c,
         uint[3] memory inputs,
+        uint[2] memory alpha, 
+        uint[2][2] memory beta, 
+        uint[2][2] memory gamma, 
+        uint[2][2] memory delta, 
+        uint[2][4] memory gamma_abc, 
         uint16 buySellFlag
     ) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
@@ -152,7 +157,7 @@ contract BaseBot {
             // Check if the prover used the correct public parameter - 2
             require(inputs[1] == lowerBollingerBand);
 
-            if (IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs)) {
+            if (IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs, alpha, beta, gamma, delta, gamma_abc)) {
                 emit BuyProofVerified(true, currentPrice);
 
             } else {
@@ -162,7 +167,7 @@ contract BaseBot {
         } else if (buySellFlag == 1) { // SELL
             // Check if the prover used the correct public parameter - 2
             require(inputs[1] == upperBollingerBand);
-            bool verified = IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs);
+            bool verified = IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs, alpha, beta, gamma, delta, gamma_abc);
             emit SellProofVerified(verified, currentPrice);
         } // else HOLD
     }
@@ -350,6 +355,11 @@ interface IVerifier {
         uint[2] memory a,
         uint[2][2] memory b,
         uint[2] memory c,
-        uint[3] memory input
+        uint[3] memory input,
+        uint[2] memory alpha, 
+        uint[2][2] memory beta, 
+        uint[2][2] memory gamma, 
+        uint[2][2] memory delta, 
+        uint[2][4] memory gamma_abc 
     ) external view returns (bool r);
 }
