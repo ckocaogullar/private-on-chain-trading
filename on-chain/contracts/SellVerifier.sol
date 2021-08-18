@@ -8,7 +8,6 @@ import "hardhat/console.sol";
  * @title Elliptic curve operations on twist points for alt_bn128
  * @author Mustafa Al-Bassam (mus@musalbas.com)
  * @dev Homepage: https://github.com/musalbas/solidity-BN256G2
- 
  */
 
 library BN256G2 {
@@ -546,8 +545,6 @@ library Pairing {
 
 contract Verifier {
     using Pairing for *;
-
-    event Verified(bool verified);
     struct VerifyingKey {
         Pairing.G1Point alpha;
         Pairing.G2Point beta;
@@ -560,20 +557,32 @@ contract Verifier {
         Pairing.G2Point b;
         Pairing.G1Point c;
     }
-    function verifyingKey() pure internal returns (VerifyingKey memory vk) {
-        vk.alpha = Pairing.G1Point(uint256(0x2d55d54eb0b8680c3052f16a2f185c658f77d8afaaaeaf4475e0ca72d5cb4189), uint256(0x26f7ba32fe35d490c291a952744388cd2f6a3ea332b2b3fe6f2e1395634dcc94));
-        vk.beta = Pairing.G2Point([uint256(0x02f1d8190dc6990220930fdc4cafb6c94dcd18f5694acf39589523b1be048158), uint256(0x052953698a9a8207598cb097650696826c0efeab27702a1da8988f0195fb8e85)], [uint256(0x1be9dbdf7e6df9c89f6823c0b828939b391d4a78b98f9c80fc76688e3e48689d), uint256(0x2daeee45e95b29809f629e408d7c50faeaaa3b36920413790d66dad1ef2cccb6)]);
-        vk.gamma = Pairing.G2Point([uint256(0x258cf67d20278d66afdca4f1824ea8aadff73d9423529d2a7bde24aa0800e029), uint256(0x1c3095bf42d86c8a0b3c92b423da4f550779de5adef1872b42b4568c820f6ffe)], [uint256(0x16fc2907271435ddc429502b4d8ffdbc972f16c69b52ce06e503710c6e207f6a), uint256(0x172db152ed5f4794a58f5884b5b77563e7be4539bf92e25ebbb6b8026d7b2fe8)]);
-        vk.delta = Pairing.G2Point([uint256(0x3058449d6059792025afca088e60d57a9f33b6d7c5ed79edefb819a1ec7afa7f), uint256(0x01d58ff2b3a12aaf7538e71b031a55dda81c8fa91adbd7afc9485ba7c4f5842f)], [uint256(0x101aac3dd2e2bb58472bd58cf7c115bf5276224621597e58a893ce31ca829a63), uint256(0x06be58f0745e13bb1d0f8fd4d85ecc9680767d7a32c60878383f8cde346cfacf)]);
+    function verifyingKey(
+        uint[2] memory alpha, 
+        uint[2][2] memory beta, 
+        uint[2][2] memory gamma, 
+        uint[2][2] memory delta, 
+        uint[2][4] memory gamma_abc ) pure internal returns (VerifyingKey memory vk) {
+        vk.alpha = Pairing.G1Point(alpha[0], alpha[1]);
+        vk.beta = Pairing.G2Point([beta[0][0], beta[0][1]], [beta[1][0], beta[1][1]]);
+        vk.gamma = Pairing.G2Point([gamma[0][0], gamma[0][1]], [gamma[1][0], gamma[1][1]]);
+        vk.delta = Pairing.G2Point([delta[0][0], delta[0][1]], [delta[1][0], delta[1][1]]);
         vk.gamma_abc = new Pairing.G1Point[](4);
-        vk.gamma_abc[0] = Pairing.G1Point(uint256(0x2ce87c0554434667579301a091e567b07c177e1362e9b9910af1020a558cd8d8), uint256(0x2f4d6be1a5a60469b88d99dbfb7759e8679c8c123697c39ff9087dc4b2e66aa6));
-        vk.gamma_abc[1] = Pairing.G1Point(uint256(0x2c84ea67f0767b3dd63423de87f3e651036e01b98858337763466c58a76c1d81), uint256(0x2275a16e5c28107b6b22be61cdea5945e74ef79db6ad4cdeb8abc9ef602c789b));
-        vk.gamma_abc[2] = Pairing.G1Point(uint256(0x2eb3adda192390d5f24b2b5c4e8b3632c797d3007b29910af63de1fb49008805), uint256(0x16c664bf6d6c9a0734d78863e0654d1f6ab23e23d21e04589171e00facb3fec6));
-        vk.gamma_abc[3] = Pairing.G1Point(uint256(0x2dddb4f0bcb4b90f863368ba8581db327b1e5f5749af501854a80049959a2dc0), uint256(0x1c80e527232f2937ec85c534fe2df09d405ab258fbc20bb9d63a0ee38525c6e6));
+        vk.gamma_abc[0] = Pairing.G1Point(gamma_abc[0][0], gamma_abc[0][1]);
+        vk.gamma_abc[1] = Pairing.G1Point(gamma_abc[1][0], gamma_abc[1][1]);
+        vk.gamma_abc[2] = Pairing.G1Point(gamma_abc[2][0], gamma_abc[2][1]);
+        vk.gamma_abc[3] = Pairing.G1Point(gamma_abc[3][0], gamma_abc[3][1]);
     }
-    function verify(uint[] memory input, Proof memory proof) internal view returns (uint) {
+    function verify(
+        uint[] memory input, 
+        Proof memory proof,
+        uint[2] memory alpha, 
+        uint[2][2] memory beta, 
+        uint[2][2] memory gamma, 
+        uint[2][2] memory delta, 
+        uint[2][4] memory gamma_abc ) internal view returns (uint) {
         uint256 snark_scalar_field = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
-        VerifyingKey memory vk = verifyingKey();
+        VerifyingKey memory vk = verifyingKey(alpha, beta, gamma, delta, gamma_abc);
         require(input.length + 1 == vk.gamma_abc.length);
         // Compute the linear combination vk_x
         Pairing.G1Point memory vk_x = Pairing.G1Point(0, 0);
@@ -592,35 +601,28 @@ contract Verifier {
     function verifyTx(
             uint[2] memory a,
             uint[2][2] memory b,
-            uint[2] memory c, uint[3] memory input
-        ) public returns (bool r) {
+            uint[2] memory c, 
+            uint[3] memory input,
+            uint[2] memory alpha, 
+            uint[2][2] memory beta, 
+            uint[2][2] memory gamma, 
+            uint[2][2] memory delta, 
+            uint[2][4] memory gamma_abc 
+        ) public view returns (bool r) {
         Proof memory proof;
         proof.a = Pairing.G1Point(a[0], a[1]);
         proof.b = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);
         proof.c = Pairing.G1Point(c[0], c[1]);
         uint[] memory inputValues = new uint[](3);
-        console.log('a[0] ', a[0]);
-        console.log('a[1] ', a[1]);
-        console.log('b[0][0] ', b[0][0]);
-        console.log('b[0][1] ', b[0][1]);
-        console.log('b[1][0] ', b[1][0]);
-        console.log('b[1][1] ', b[1][1]);
-        console.log('c[0] ', c[0]);
-        console.log('c[1] ', c[1]);
-        console.log('input[0] ', input[0]);
-        console.log('input[1] ', input[1]);
-        console.log('input[2] ', input[2]);
         
         for(uint i = 0; i < input.length; i++){
             inputValues[i] = input[i];
         }
-        if (verify(inputValues, proof) == 0) {
-            emit Verified(true);
-            console.log('Proof verified: TRUE');
+        if (verify(inputValues, proof, alpha, beta, gamma, delta, gamma_abc) == 0) {
+            console.log("Proof verification TRUE");
             return true;
         } else {
-            console.log('Proof verified: FALSE');
-            emit Verified(false);
+            console.log("Proof verification FALSE");
             return false;
         }
     }

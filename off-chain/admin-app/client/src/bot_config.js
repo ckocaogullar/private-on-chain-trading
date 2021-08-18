@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0xaA08cc5A9fdEb4cAc78Bd9fD66fbfddf22623e80'
+export const BOT_CONTRACT_ADDRESS = '0xbf02ce3CF8A3A5cC01033dc3B1D0EF241654E21a'
 // Ropsten address for the previous contract version
 //export const BOT_CONTRACT_ADDRESS = '0x97dEF834E0fd1e6325235850ee2bA3192A5f0d77'
 
@@ -363,6 +363,31 @@ export const BOT_ABI = [
         "internalType": "uint256[3]",
         "name": "inputs",
         "type": "uint256[3]"
+      },
+      {
+        "internalType": "uint256[2]",
+        "name": "alpha",
+        "type": "uint256[2]"
+      },
+      {
+        "internalType": "uint256[2][2]",
+        "name": "beta",
+        "type": "uint256[2][2]"
+      },
+      {
+        "internalType": "uint256[2][2]",
+        "name": "gamma",
+        "type": "uint256[2][2]"
+      },
+      {
+        "internalType": "uint256[2][2]",
+        "name": "delta",
+        "type": "uint256[2][2]"
+      },
+      {
+        "internalType": "uint256[2][4]",
+        "name": "gamma_abc",
+        "type": "uint256[2][4]"
       },
       {
         "internalType": "uint16",
