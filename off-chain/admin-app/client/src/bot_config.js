@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0xbf02ce3CF8A3A5cC01033dc3B1D0EF241654E21a'
+export const BOT_CONTRACT_ADDRESS = '0xBD87D37C5b91833593e883dAed05489D47eA3886'
 // Ropsten address for the previous contract version
 //export const BOT_CONTRACT_ADDRESS = '0x97dEF834E0fd1e6325235850ee2bA3192A5f0d77'
 
@@ -68,34 +68,9 @@ export const BOT_ABI = [
         "internalType": "bool",
         "name": "verified",
         "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "currentPrice",
-        "type": "uint256"
       }
     ],
-    "name": "BuyProofVerified",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "verified",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "currentPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "SellProofVerified",
+    "name": "ProofVerified",
     "type": "event"
   },
   {
@@ -109,50 +84,6 @@ export const BOT_ABI = [
       }
     ],
     "name": "SubscriptionConfirmed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "input1",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "input2",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "input3",
-        "type": "uint256"
-      }
-    ],
-    "name": "TestEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "a1",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "a2",
-        "type": "uint256"
-      }
-    ],
-    "name": "TestProof",
     "type": "event"
   },
   {
@@ -360,39 +291,9 @@ export const BOT_ABI = [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[3]",
+        "internalType": "uint256[4]",
         "name": "inputs",
-        "type": "uint256[3]"
-      },
-      {
-        "internalType": "uint256[2]",
-        "name": "alpha",
-        "type": "uint256[2]"
-      },
-      {
-        "internalType": "uint256[2][2]",
-        "name": "beta",
-        "type": "uint256[2][2]"
-      },
-      {
-        "internalType": "uint256[2][2]",
-        "name": "gamma",
-        "type": "uint256[2][2]"
-      },
-      {
-        "internalType": "uint256[2][2]",
-        "name": "delta",
-        "type": "uint256[2][2]"
-      },
-      {
-        "internalType": "uint256[2][4]",
-        "name": "gamma_abc",
-        "type": "uint256[2][4]"
-      },
-      {
-        "internalType": "uint16",
-        "name": "buySellFlag",
-        "type": "uint16"
+        "type": "uint256[4]"
       }
     ],
     "name": "trade",

@@ -107,14 +107,14 @@ function App(props) {
   // }, [account])
   // ---------------------------------------------------
 
-  const callProofApi = async (proofType, currentPrice, bollingerBand, percentageBound) => {
+  const callProofApi = async (currentPrice, upperBollingerBand, lowerBollingerBand, buy_sell_flag, boundPercentage) => {
     tProofGenStarted = performance.now()
     const response = await fetch('/api/proof', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ post: [proofType, currentPrice, bollingerBand, percentageBound] }),
+      body: JSON.stringify({ post: [currentPrice, upperBollingerBand, lowerBollingerBand, buy_sell_flag, boundPercentage] }),
     });
     const body = await response.text();
     return body
@@ -265,24 +265,6 @@ function App(props) {
     console.log(registerResponse)
   }
 
-  const testVerify = async () => {
-    console.log('proof.proof.a', proof.proof.a)
-      console.log('proof.proof.b', proof.proof.b)
-      console.log('proof.proof.c', proof.proof.c)
-      console.log('proof.inputs', proof.inputs)
-    sellVerifSocket.once('Verified', {}, (error, event) => {
-      if(error){
-        console.log(error)
-      } else {
-        console.log('Verified event caught ', event)
-      }
-    })
-
-    sellVerifContract.methods.verifyTx(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({from: account, gas: 800000, gasPrice: "10000000000"})
-    .on('receipt', function(receipt) {
-      console.log('testVerify verification call receipt: ', receipt)
-    })
-  }
 
   // Subscribe to the BollingerIndicators event
   // Call calculateIndicators function
@@ -317,38 +299,13 @@ function App(props) {
     // console.log('initialBalance ', initialBalance)
     var gasUsed = 0;
 
-    
-      botSocket.once('TestEvent', {}, (error, event) => {
-        if (error) {
-          // console.log('Could not get event ' + error)
-        } else {
-          // console.log('TestEvent Event caught: ', event)
-        }
-      })
-      botSocket.once('SellProofVerified', {}, (error, event) => {
+      botSocket.once('ProofVerified', {}, (error, event) => {
       if (error) {
         // console.log('Could not get event ' + error)
       } else {
         tProofVerified = performance.now()
         // console.log('tProofVerified ', tProofVerified)
-        console.log('SellProofVerified Event caught: ', event)
-      }
-    })
-    botSocket.once('BuyProofVerified', {}, (error, event) => {
-      if (error) {
-        // console.log('Could not get event ' + error)
-      } else {
-        tProofVerified = performance.now()
-        // console.log('tProofVerified ', tProofVerified)
-        console.log('BuyProofVerified Event caught: ', event)
-      }
-    })
-
-    botSocket.once('TestProof', {}, (error, event) => {
-      if(error) {
-        console.log('Error catching TestProof event')
-      } else {
-        console.log('TestProof event caught: ', event)
+        console.log('ProofVerified Event caught: ', event)
       }
     })
     
@@ -366,23 +323,37 @@ function App(props) {
         // console.log('currentPrice ' + currentPrice)
         // console.log('upperBollingerBand ' + upperBollingerBand)
         // console.log('lowerBollingerBand ' + lowerBollingerBand)
-
+        var buy_sell_flag = -1
+        var boundPercentage = null
+        // Give Buy or Sell decision
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
           console.log("Selling token1");
           console.log("currentPrice: ", currentPrice);
           console.log("upperBollingerBand: ", upperBollingerBand);
           console.log("upperBoundPercentage: ", upperBoundPercentage);
-          callProofApi('sell-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
+          boundPercentage = upperBoundPercentage
+          buy_sell_flag = 0
+        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
+          console.log("Buying token1");
+          console.log("currentPrice: ", currentPrice);
+          console.log("lowerBollingerBand: ", lowerBollingerBand);
+          console.log("lowerBoundPercentage: ", lowerBoundPercentage);
+          boundPercentage = lowerBoundPercentage
+          buy_sell_flag = 1
+        }
+
+        // If a Buy or Sell decision is made, create proof and send on-chain
+        if (buy_sell_flag >= 0){
+          callProofApi(currentPrice, upperBollingerBand, lowerBollingerBand, buy_sell_flag, boundPercentage).then(res => {
             tProofGenEnded = performance.now()
-            const data = JSON.parse(res)
-            const proof = data.proof
-            const verificationKey = data.verificationKey
+            console.log(res)
+            const proof = JSON.parse(res).proof
             console.log('proof', proof)
             console.log('proof.proof.a', proof.proof.a)
             console.log('proof.proof.b', proof.proof.b)
             console.log('proof.proof.c', proof.proof.c)
             console.log('proof.proof.inputs', proof.inputs)
-            botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs, verificationKey.alpha, verificationKey.beta, verificationKey.gamma, verificationKey.delta, verificationKey.gamma_abc, 1).send({from: account, gas: 800000, gasPrice: "10000000000"})
+            botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
               // console.log('Trade receipt: ')
               // console.log(receipt)
@@ -407,41 +378,7 @@ function App(props) {
               });
             })
           })
-          
-          //await botContract.methods.trade()
-       } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
-          console.log("Buying token1");
-          callProofApi('buy-proof', currentPrice, upperBollingerBand, upperBoundPercentage).then(res => {
-            tProofGenEnded = performance.now()
-            console.log('res', res)
-            const body = JSON.parse(res)
-            botContract.methods.trade(body.a, body.b, body.c, body.inputs, 0).send({from: account, gas: 800000, gasPrice: "10000000000"})
-            .on('receipt', function(receipt) {
-              // console.log('Trade receipt: ')
-              // console.log(receipt)
-              var tTradeEnded = performance.now()
-              gasUsed += receipt.gasUsed
-              web3.eth.getBalance(account).then(res => {
-              var finalBalance = res
-              var deltaBalance = (initialBalance - finalBalance)
-              // console.log("Total WEI used for trading " + deltaBalance)
-              var deltaTotalTime = (tTradeEnded - t0)
-              var deltaTradingTime = (tTradeEnded - tProofGenEnded)
-              var deltaProofGenTime = (tProofGenEnded - tProofGenStarted)
-              var deltaGetIndicators = (tBollingerIndicators - t0)
-              // console.log("Trading took " + deltaTotalTime + " milliseconds.")
-              // console.log("Total gas used: ", gasUsed)
-              callPerformanceApi(deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaTradingTime, deltaTotalTime, gasUsed).then(()=> {
-                performanceRunCounter += 1
-                trade(numOfPeriods, periodLength)
-              })
-            });
-            
-            })
-          })
-       }
-      // else: Hold
-
+        }
       }
     })
   
@@ -466,7 +403,6 @@ function App(props) {
       <button onClick={()=>depositToDeversifi()}>Deposit to Deversifi</button>
       <button onClick={()=>withdrawFromDeversifi()}>Withdraw</button>
       <button onClick={()=>getDeversifiBalance()}>Get Deversifi Balance</button>
-      <button onClick={()=>testVerify()}>Test Verification</button>
     </div>
   );
 }

@@ -1,0 +1,34 @@
+{
+  "inputs": [
+    {
+      "name": "currentPrice",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "upperBollingerBand",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "lowerBollingerBand",
+      "public": true,
+      "type": "field"
+    },
+    {
+      "name": "buy_sell_flag",
+      "public": false,
+      "type": "field"
+    },
+    {
+      "name": "boundPercentage",
+      "public": false,
+      "type": "field"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "bool"
+    }
+  ]
+}

@@ -35,6 +35,8 @@ contract BaseBot {
     // ------------------------------------------------------------------------
     address buyVerifierAddress = 0xbc12D817Ed67b3e0C11F87E4b9241DC45dE9ed34;
     address sellVerifierAddress = 0x47c6017175d201fa7cb93574a9F7B23e2355F548;
+
+    address verifierAddress = 0x17d7D94cc7F18E4a709cAeB731256be00A62cafc;
     
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -65,10 +67,7 @@ contract BaseBot {
 
     event UserSubscribed(address subscriberAddress);
     event SubscriptionConfirmed(address userAddress);
-    event TestEvent(uint256 input1, uint256 input2, uint256 input3);
-    event SellProofVerified(bool verified, uint256 currentPrice);
-    event BuyProofVerified(bool verified, uint256 currentPrice);
-    event TestProof(uint a1, uint a2);
+    event ProofVerified(bool verified);
 
     event BollingerIndicators(
         uint256 upperBollingerBand,
@@ -136,40 +135,21 @@ contract BaseBot {
         uint[2] memory a,
         uint[2][2] memory b,
         uint[2] memory c,
-        uint[3] memory inputs,
-        uint[2] memory alpha, 
-        uint[2][2] memory beta, 
-        uint[2][2] memory gamma, 
-        uint[2][2] memory delta, 
-        uint[2][4] memory gamma_abc, 
-        uint16 buySellFlag
+        uint[4] memory inputs
     ) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
         require(msg.sender == admin, "Only the admin can invoke trading");
-        emit TestProof(a[0], a[1]);
 
-        // Check if the prover used the correct public parameter - 1
-        require(inputs[0] == currentPrice);
+        // Check if the prover used the correct public parameters
+        require(inputs[0] == currentPrice && inputs[1] == upperBollingerBand && inputs[2] == lowerBollingerBand);
 
-        // Make sure that the public inputs that the contract has "inputs"
+        // Check if the result of the checked condition is True. If it is false, this means that the check for buying or selling decision 
+        // has failed. However, the proof will still be verified, because what's being proven is that buying or selling decision has failed.
+        require(inputs[3] == 1);
 
-        if (buySellFlag == 0) { // BUY
-            // Check if the prover used the correct public parameter - 2
-            require(inputs[1] == lowerBollingerBand);
-
-            if (IVerifier(buyVerifierAddress).verifyTx(a, b, c, inputs, alpha, beta, gamma, delta, gamma_abc)) {
-                emit BuyProofVerified(true, currentPrice);
-
-            } else {
-                emit BuyProofVerified(false, 0);
-
-            }
-        } else if (buySellFlag == 1) { // SELL
-            // Check if the prover used the correct public parameter - 2
-            require(inputs[1] == upperBollingerBand);
-            bool verified = IVerifier(sellVerifierAddress).verifyTx(a, b, c, inputs, alpha, beta, gamma, delta, gamma_abc);
-            emit SellProofVerified(verified, currentPrice);
-        } // else HOLD
+        bool verified = IVerifier(verifierAddress).verifyTx(a, b, c, inputs);
+        emit ProofVerified(verified);
+        
     }
 
     function calculateIndicators(uint32 numOfPeriods, uint32 periodLength)
@@ -355,11 +335,6 @@ interface IVerifier {
         uint[2] memory a,
         uint[2][2] memory b,
         uint[2] memory c,
-        uint[3] memory input,
-        uint[2] memory alpha, 
-        uint[2][2] memory beta, 
-        uint[2][2] memory gamma, 
-        uint[2][2] memory delta, 
-        uint[2][4] memory gamma_abc 
+        uint[4] memory input
     ) external view returns (bool r);
 }
