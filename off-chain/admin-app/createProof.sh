@@ -2,12 +2,9 @@
 # go to the proof directory
 export PATH=$PATH:/Users/ceren/.zokrates/bin
 # compile
-cd ../zokrates-proof/$1
-zokrates compile -i root.zok
-# perform the setup phase
-zokrates setup
+cd ../zokrates-proof/decision-proof
 # execute the program
-echo $2 $3 $4
-zokrates compute-witness -a $2 $3 $4
+echo $1 $2 $3 $4 $5
+zokrates compute-witness -a $1 $2 $3 $4 $5
 # generate a proof of computation
 zokrates generate-proof

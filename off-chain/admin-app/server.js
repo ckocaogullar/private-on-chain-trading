@@ -22,7 +22,7 @@ app.post('/api/proof', (req, res) => {
     // console.log('Running the script to generate a buy condition proof');
     // console.log(req.body.post[0]);
     //var proof = {a: '', b: '', c: '', inputs: ''};
-    exec(__dirname + '/createProof.sh ' + req.body.post[0] + ' ' + req.body.post[1] + ' ' + req.body.post[2] + ' ' + req.body.post[3], (error, stdout, stderr) => {
+    exec(__dirname + '/createProof.sh ' + req.body.post[0] + ' ' + req.body.post[1] + ' ' + req.body.post[2] + ' ' + req.body.post[3] + ' ' + req.body.post[4], (error, stdout, stderr) => {
         if (error) {
             console.error(`error: ${error.message}`);
             return;
@@ -35,14 +35,11 @@ app.post('/api/proof', (req, res) => {
     
         console.log(`createProof stdout:\n${stdout}`);
         
-        const rawProofdata = fs.readFileSync('../zokrates-proof/' + req.body.post[0] + '/proof.json')
+        const rawProofdata = fs.readFileSync('../zokrates-proof/decision-proof/proof.json')
         const proof = JSON.parse(rawProofdata)
-        const rawKeyData = fs.readFileSync('../zokrates-proof/' + req.body.post[0] + '/verification.key')
-        const verificationKey = JSON.parse(rawKeyData)
 
-        console.log(proof);
-        console.log(verificationKey)
-        res.send({proof: proof, verificationKey: verificationKey})
+        console.log(proof)
+        res.send({proof: proof})
     });
 })
 
