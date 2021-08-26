@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react'
 import Web3 from 'web3'
 import './App.css'
 import { BOT_ABI, BOT_CONTRACT_ADDRESS } from './bot_config'
-import { SELL_VERIFIER_CONTRACT_ADDRESS, SELL_VERIFIER_ABI } from './verifier_config'
 import DVF from 'dvf-client-js'
-import proof from './proof.json'
 const starkPrivateKey = '743a0ff439f6ed52ed1fef395d6cea58af02088c91528b07048cc5f922d3f65'
+//var starkPrivateKey
 
 
 const upperBoundPercentage = 100
@@ -14,16 +13,16 @@ const lowerBoundPercentage = 100
 var performanceRunCounter = 0
 const performanceRunThreshold = 1
 
-var indicatorsCaught = false
-var tProofGenStarted = null
+var tProofGenStarted = 0
+var gasUsed = 0;
+var gasUsedOnBot = 0;
+var gasUsedOnVerification = 0;
 
 function App(props) {
   const [account, setAccount] = useState(null);
   //const [subscribedUser, setSubscribedUser] = useState();
   const [botContract, setBotContract] = useState(null);
-  const [sellVerifContract, setVerifContract] = useState(null);
   const [botSocket, setBotSocket] = useState(null);
-  const [sellVerifSocket, setVerifSocket] = useState(null);
   const [web3, setWeb3] = useState();
   // load blockchain data in initial render
   useEffect(async () => {
@@ -53,11 +52,6 @@ function App(props) {
         setBotContract(botContract);
         const botSocket = new web3Socket.eth.Contract(BOT_ABI, BOT_CONTRACT_ADDRESS);
         setBotSocket(botSocket)
-
-        const sellVerifContract = new web3.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
-        setVerifContract(sellVerifContract);
-        const sellVerifSocket = new web3Socket.eth.Contract(SELL_VERIFIER_ABI, SELL_VERIFIER_CONTRACT_ADDRESS);
-        setVerifSocket(sellVerifSocket);
 
         // Request account access if needed and get the accounts
         await window.ethereum.enable();
@@ -120,13 +114,13 @@ function App(props) {
     return body
   };
 
-  const callPerformanceApi = async (deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime ,deltaTradingTime, deltaTotalTime, gasUsed) => {
+  const callPerformanceApi = async (deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime ,deltaTradingTime, deltaTotalTime,  gasUsedOnBot, gasUsedOnVerification, gasUsed) => {
     const response = await fetch('/api/performance', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ post: [deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime, deltaTradingTime, deltaTotalTime, gasUsed] }),
+      body: JSON.stringify({ post: [deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime, deltaTradingTime, deltaTotalTime,  gasUsedOnBot, gasUsedOnVerification, gasUsed] }),
     });
     const body = await response.text();
     return body
@@ -160,7 +154,7 @@ function App(props) {
     const dvf = await DVF(web3, dvfConfig)
 
     //const depositResponse = await dvf.deposit('ETH', 1, starkPrivateKey)
-    const depositResponse = await dvf.depositV2({ token: 'ETH', amount: 1 })
+    const depositResponse = await dvf.depositV2({ token: 'ETH', amount: 5 })
 
     
     await waitForDepositCreditedOnChain(dvf, depositResponse)
@@ -258,11 +252,24 @@ function App(props) {
     }
 
     const dvf = await DVF(web3, dvfConfig)
-
+    //starkPrivateKey = dvf.stark.createPrivateKey()
+    
     const keyPair = await dvf.stark.createKeyPair(starkPrivateKey)
   
     const registerResponse = await dvf.register(keyPair.starkPublicKey)
     console.log(registerResponse)
+    console.log('starkPrivateKey ')
+    console.log(starkPrivateKey)
+  }
+
+  const callTradeFunc = async (proof) => {
+    botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({from: account, gas: 800000, gasPrice: "10000000000"})
+            .on('receipt', function(receipt) {
+              console.log('trade receipt: ')
+              console.log(receipt)
+              gasUsed += receipt.gasUsed
+              gasUsedOnVerification = receipt.gasUsed
+            })
   }
 
 
@@ -272,6 +279,7 @@ function App(props) {
   // Whichever signal it fits (buy or hold), use public and private parameters there to generate a proof accordingly
 
   const trade = async (numOfPeriods, periodLength) => {
+    var currentPrice;
     // Get average gas price
     // ----------------------
     // web3.eth.getGasPrice().then((result) => {
@@ -285,19 +293,20 @@ function App(props) {
     } else if (performanceRunCounter >= performanceRunThreshold){
       callEndPerformanceApi()
       // Set counter to -1 to show that the performance check has ended
-      // console.log('performanceRunCounter >= performanceRunThreshold = ', performanceRunCounter)
+      console.log('All done.')
       performanceRunCounter = -1
       return
     } else {
-    var t0 = performance.now()
+    
     // console.log('t0 ', t0)
-    var tBollingerIndicators = null
-    var tProofGenEnded = null
-    var tProofVerified = null
-    var initialBalance = null
-    web3.eth.getBalance(account).then(res => {initialBalance = res});
+    var tBollingerIndicators = 0
+    var tProofGenEnded = 0
+    var tProofVerified = 0
+    var tTradeEnded = 0
+    var tTradeDecisionMade = 0
+    var t0 = performance.now()
+    //web3.eth.getBalance(account).then(res => {initialBalance = res});
     // console.log('initialBalance ', initialBalance)
-    var gasUsed = 0;
 
       botSocket.once('ProofVerified', {}, (error, event) => {
       if (error) {
@@ -305,19 +314,41 @@ function App(props) {
       } else {
         tProofVerified = performance.now()
         // console.log('tProofVerified ', tProofVerified)
-        console.log('ProofVerified Event caught: ', event)
+        console.log('ProofVerified Event caught: ')
+        console.log(event)
+        
+        deversifiBuySellOrder(currentPrice, -0.05).then(res => {
+          tTradeEnded = performance.now()
+          // console.log("Total WEI used for trading " + deltaBalance)
+          var deltaGetIndicators = (tBollingerIndicators - t0)
+          var deltaMakeTradeDecision = (tTradeDecisionMade - tBollingerIndicators)
+          var deltaProofGenTime = (tProofGenEnded - tProofGenStarted)
+          var deltaProofVerifTime = (tProofVerified - tProofGenEnded)
+          var deltaTradingTime = (tTradeEnded - tProofVerified)
+          var deltaTotalTime = (tTradeEnded - t0)
+          while(gasUsedOnBot === 0 || gasUsedOnVerification === 0){
+            setTimeout(function(){
+              //do what you need here
+          }, 20);
+          }
+          callPerformanceApi(deltaGetIndicators, deltaMakeTradeDecision, deltaProofGenTime, deltaProofVerifTime , deltaTradingTime, deltaTotalTime, gasUsedOnBot, gasUsedOnVerification, gasUsed)
       }
-    })
+    ).then(()=> {
+      performanceRunCounter += 1
+      trade(numOfPeriods, periodLength)
+  })
+  
+  }})
     
     botSocket.once('BollingerIndicators', {}, (error, event) => {
       if (error) {
         // console.log('Could not get BollingerIndicators event ' + error)
       } else {
-        // console.log('Event BollingerIndicators caught: ')
-        // console.log(event)
+        console.log('Event BollingerIndicators caught: ')
+        console.log(event)
         tBollingerIndicators = performance.now()
         // console.log('tBollingerIndicators ', tBollingerIndicators)
-        const currentPrice = event.returnValues.currentPrice
+        currentPrice = event.returnValues.currentPrice
         const upperBollingerBand = event.returnValues.upperBollingerBand
         const lowerBollingerBand = event.returnValues.lowerBollingerBand
         // console.log('currentPrice ' + currentPrice)
@@ -327,71 +358,49 @@ function App(props) {
         var boundPercentage = null
         // Give Buy or Sell decision
         if (currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)) {
-          console.log("Selling token1");
-          console.log("currentPrice: ", currentPrice);
-          console.log("upperBollingerBand: ", upperBollingerBand);
-          console.log("upperBoundPercentage: ", upperBoundPercentage);
+          // console.log("Selling token1");
+          // console.log("currentPrice: ", currentPrice);
+          // console.log("upperBollingerBand: ", upperBollingerBand);
+          // console.log("upperBoundPercentage: ", upperBoundPercentage);
           boundPercentage = upperBoundPercentage
           buy_sell_flag = 0
         } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
-          console.log("Buying token1");
-          console.log("currentPrice: ", currentPrice);
-          console.log("lowerBollingerBand: ", lowerBollingerBand);
-          console.log("lowerBoundPercentage: ", lowerBoundPercentage);
+          // console.log("Buying token1");
+          // console.log("currentPrice: ", currentPrice);
+          // console.log("lowerBollingerBand: ", lowerBollingerBand);
+          // console.log("lowerBoundPercentage: ", lowerBoundPercentage);
           boundPercentage = lowerBoundPercentage
           buy_sell_flag = 1
         }
-
+        tTradeDecisionMade = performance.now()
         // If a Buy or Sell decision is made, create proof and send on-chain
         if (buy_sell_flag >= 0){
           callProofApi(currentPrice, upperBollingerBand, lowerBollingerBand, buy_sell_flag, boundPercentage).then(res => {
             tProofGenEnded = performance.now()
-            console.log(res)
+            //console.log(res)
             const proof = JSON.parse(res).proof
-            console.log('proof', proof)
-            console.log('proof.proof.a', proof.proof.a)
-            console.log('proof.proof.b', proof.proof.b)
-            console.log('proof.proof.c', proof.proof.c)
-            console.log('proof.proof.inputs', proof.inputs)
             botContract.methods.trade(proof.proof.a, proof.proof.b, proof.proof.c, proof.inputs).send({from: account, gas: 800000, gasPrice: "10000000000"})
             .on('receipt', function(receipt) {
-              // console.log('Trade receipt: ')
-              // console.log(receipt)
-              var tTradeEnded = performance.now()
-              // console.log('tTradeEnded ', tTradeEnded)
+              console.log('trade receipt: ')
+              console.log(receipt)
               gasUsed += receipt.gasUsed
-              web3.eth.getBalance(account).then(res => {
-                var finalBalance = res
-                var deltaBalance = (initialBalance - finalBalance)
-                // console.log("Total WEI used for trading " + deltaBalance)
-                var deltaTotalTime = (tTradeEnded - t0)
-                var deltaTradingTime = (tTradeEnded - tProofGenEnded)
-                var deltaProofGenTime = (tProofGenEnded - tProofGenStarted)
-                var deltaGetIndicators = (tBollingerIndicators - t0)
-                var deltaProofVerifTime = (tProofVerified - tProofGenEnded)
-                // console.log("Trading took " + deltaTotalTime + " milliseconds.")
-                // console.log("Total gas used: ", gasUsed)
-                callPerformanceApi(deltaBalance, deltaGetIndicators, deltaProofGenTime, deltaProofVerifTime , deltaTradingTime, deltaTotalTime, gasUsed).then(()=> {
-                  performanceRunCounter += 1
-                  trade(numOfPeriods, periodLength)
-                })
-              });
+              gasUsedOnVerification = receipt.gasUsed
+              console.log('Lets see')
             })
           })
         }
       }
     })
   
-    await botContract.methods.calculateIndicators(numOfPeriods, periodLength).send({from: account, gas: 800000, gasPrice: "10000000000"})
-    .on('receipt', function(receipt) {
-      // console.log('calculateIndicators receipt: ')
-      // console.log(receipt)
+    await botContract.methods.calculateIndicators(numOfPeriods, periodLength).send({from: account, gas: 800000, gasPrice: "10000000000"}).on('receipt', function(receipt) {
+      console.log('calculateIndicators receipt: ')
+      console.log(receipt)
       gasUsed += receipt.gasUsed
+      gasUsedOnBot = receipt.gasUsed
       // console.log('gasUsed after calculateIndicators ', gasUsed)
     })
-    }
     
-  }
+  }}
 
   return (
     <div className="container">
@@ -401,8 +410,9 @@ function App(props) {
       <button onClick={()=>trade(20, 1800)}>Trigger On-Chain Trading</button>
       <button onClick={()=>registerDeversifi()}>Register to Deversifi</button>
       <button onClick={()=>depositToDeversifi()}>Deposit to Deversifi</button>
-      <button onClick={()=>withdrawFromDeversifi()}>Withdraw</button>
+      <button onClick={()=>withdrawFromDeversifi()}>Withdraw from Deversifi</button>
       <button onClick={()=>getDeversifiBalance()}>Get Deversifi Balance</button>
+      <button onClick={()=>deversifiBuySellOrder(20000000, -1)}>Buy USDC on Deversifi</button>
     </div>
   );
 }

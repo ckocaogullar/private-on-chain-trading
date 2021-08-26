@@ -45,8 +45,8 @@ app.post('/api/proof', (req, res) => {
 
 app.post('/api/performance', (req, res) => {
     // console.log('Taking the performance values')
-    
-    jsonData.table.push({deltaBalance: req.body.post[0], deltaGetIndicators: req.body.post[1],  deltaProofGenTime: req.body.post[2], deltaProofVerifTime: req.body.post[3], deltaTradingTime: req.body.post[4], deltaTotalTime: req.body.post[5], gasUsed: req.body.post[6]})
+    console.log('performance api req', req.body.post)
+    jsonData.table.push({deltaGetIndicators: req.body.post[0], deltaMakeTradeDecision: req.body.post[1], deltaProofGenTime: req.body.post[2], deltaProofVerifTime: req.body.post[3], deltaTradingTime: req.body.post[4], deltaTotalTime: req.body.post[5], gasUsedOnBot: req.body.post[6], gasUsedOnVerification: req.body.post[7], gasUsed: req.body.post[8]})
     //console.log(jsonData)
     var json = JSON.stringify(jsonData);
     fs.writeFile('../performance.json', json, 'utf8', function(err) {

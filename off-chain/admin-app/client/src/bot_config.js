@@ -1,6 +1,6 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0xBD87D37C5b91833593e883dAed05489D47eA3886'
+export const BOT_CONTRACT_ADDRESS = '0x24d9a86010Ad51AB124d3b85b93304229710d8c7'
 // Ropsten address for the previous contract version
 //export const BOT_CONTRACT_ADDRESS = '0x97dEF834E0fd1e6325235850ee2bA3192A5f0d77'
 
