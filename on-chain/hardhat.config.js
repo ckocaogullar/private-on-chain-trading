@@ -3,6 +3,7 @@ require("@nomiclabs/hardhat-ganache");
 
 //const ROPSTEN_PRIVATE_KEY1 = "a0869b1386566d0a7b325787216eeee27ac8527a02e84d6e70baea2ceaf2ee57"
 const ROPSTEN_PRIVATE_KEY2 = "bc6d600f6bf2a5ad83377dd8743e5fe30b14064ea8e082f3a83ee704cca0cfc0"
+//const ROPSTEN_PRIVATE_KEY3 = "9a134daeadcf1c1b45b60fd2194e72cd1f372374a424d43586a1c0ad6db9c7ca"
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
