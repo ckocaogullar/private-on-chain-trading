@@ -30,14 +30,13 @@ contract BaseBot {
     //     IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
     // ------------------------------------------------------------------------
 
-
     // Uncomment these values for Ropsten network
     // ------------------------------------------------------------------------
     address buyVerifierAddress = 0xbc12D817Ed67b3e0C11F87E4b9241DC45dE9ed34;
     address sellVerifierAddress = 0x47c6017175d201fa7cb93574a9F7B23e2355F548;
 
-    address verifierAddress = 0x17d7D94cc7F18E4a709cAeB731256be00A62cafc;
-    
+    address verifierAddress = 0x940E4036Ca25BF60eCA879b711c6619A50d1e1a7;
+
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     IQuoter public constant quoter =
@@ -132,30 +131,33 @@ contract BaseBot {
     // @param inputs of the proof
     // @param buySellFlag indicates buy or sell signal. 0 indicates BUY, 1 indicates SELL, 2 indicates HOLD
     function trade(
-        uint[2] memory a,
-        uint[2][2] memory b,
-        uint[2] memory c,
-        uint[4] memory inputs
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[4] memory inputs
     ) public {
         // Make sure that the one who is calling the algorithm is the admin of the bot
         require(msg.sender == admin, "Only the admin can invoke trading");
 
         // Check if the prover used the correct public parameters
-        require(inputs[0] == currentPrice && inputs[1] == upperBollingerBand && inputs[2] == lowerBollingerBand);
+        require(
+            inputs[0] == currentPrice &&
+                inputs[1] == upperBollingerBand &&
+                inputs[2] == lowerBollingerBand
+        );
 
-        // Check if the result of the checked condition is True. If it is false, this means that the check for buying or selling decision 
+        // Check if the result of the checked condition is True. If it is false, this means that the check for buying or selling decision
         // has failed. However, the proof will still be verified, because what's being proven is that buying or selling decision has failed.
         require(inputs[3] == 1);
 
         bool verified = IVerifier(verifierAddress).verifyTx(a, b, c, inputs);
         emit ProofVerified(verified);
-        
     }
 
     function calculateIndicators(uint32 numOfPeriods, uint32 periodLength)
         public
     {
-        bollinger(numOfPeriods, periodLength);   
+        bollinger(numOfPeriods, periodLength);
     }
 
     // --------------------------- TRADING ALGORITHM: BOLLINGER ---------------------------
@@ -175,29 +177,26 @@ contract BaseBot {
     //      n=Number of days in smoothing period (typically 20)
     //      m=Number of standard deviations (typically 2)
     //      σ[TP,n]=Standard Deviation over last n periods of TP
-    function bollinger(uint32 numOfPeriods, uint32 periodLength)
-        public
-    {
+    function bollinger(uint32 numOfPeriods, uint32 periodLength) public {
         require(
             admin == msg.sender,
             "Only the admin can invoke the trading algorithm"
         );
-        
+
         if (poolAddress == address(0x0)) {
             poolAddress = PoolAddress.computeAddress(
                 uniswapV3Factory,
                 PoolAddress.getPoolKey(token0, token1, defaultFee)
             );
         }
-        
-        
+
         (uint256 movingAverage, uint256[] memory pastPrices) = sma(
             numOfPeriods,
             periodLength
         );
-        
+
         uint256 stdDev = standardDev(pastPrices, movingAverage);
-        
+
         upperBollingerBand = movingAverage + 2 * stdDev;
         lowerBollingerBand = movingAverage - 2 * stdDev;
         currentPrice = pastPrices[0];
@@ -208,7 +207,7 @@ contract BaseBot {
         // console.log('stdDev ', stdDev);
         // console.log('upperBollingerBand', upperBollingerBand);
         // console.log('lowerBollingerBand', lowerBollingerBand);
-        
+
         // Emit the two indicators used for the Bollinger trading algorithm as well as
         // the current price (at the moment of observing prices within the sma function)
         emit BollingerIndicators(
@@ -225,7 +224,6 @@ contract BaseBot {
         //     // Buy
         // }
         // else: Hold
-        
     }
 
     function getCurrentPrice() public returns (uint256 currentPrice) {
@@ -236,7 +234,7 @@ contract BaseBot {
             );
         }
         int256 twapTick = OracleLibrary.consult(poolAddress, 800);
-        
+
         currentPrice = OracleLibrary.getQuoteAtTick(
             int24(twapTick), // can assume safe being result from consult()
             1,
@@ -245,7 +243,7 @@ contract BaseBot {
         );
     }
 
-    // ------------------------------------- Helper functions ------------------------------------- 
+    // ------------------------------------- Helper functions -------------------------------------
 
     /// @notice Given a time period to look back into and the number of data points, calculates the
     /// Simple Moving Average (SMA) for token1 in terms of token0
@@ -295,7 +293,7 @@ contract BaseBot {
             // Add the learned price to SMA
             sma = SafeMath.add(sma, priceAtTick[i]);
 
-            console.log('priceAtTick[',i,'] = ', priceAtTick[i]);
+            console.log("priceAtTick[", i, "] = ", priceAtTick[i]);
         }
         // Divide SMA with the number of intervals
         sma = sma.div(tickCumulatives.length - 1);
@@ -311,7 +309,10 @@ contract BaseBot {
         for (uint256 i = 0; i < pastPrices.length; i++) {
             sumOfSquaredDev += (pastPrices[i] - mean) * (pastPrices[i] - mean);
         }
-        console.log('sqrt(sumOfSquaredDev / pastPrices.length) ', sqrt(sumOfSquaredDev / pastPrices.length));
+        console.log(
+            "sqrt(sumOfSquaredDev / pastPrices.length) ",
+            sqrt(sumOfSquaredDev / pastPrices.length)
+        );
         stdDev = sqrt(sumOfSquaredDev / pastPrices.length);
     }
 
@@ -327,14 +328,13 @@ contract BaseBot {
             z = 1;
         }
     }
-
 }
 
 interface IVerifier {
     function verifyTx(
-        uint[2] memory a,
-        uint[2][2] memory b,
-        uint[2] memory c,
-        uint[4] memory input
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[4] memory input
     ) external view returns (bool r);
 }

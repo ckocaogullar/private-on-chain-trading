@@ -11,7 +11,7 @@ const upperBoundPercentage = 100
 const lowerBoundPercentage = 100
 
 var performanceRunCounter = 0
-const performanceRunThreshold = 1
+const performanceRunThreshold = 10000
 
 var tProofGenStarted = 0
 var gasUsed = 0;
@@ -218,6 +218,11 @@ function App(props) {
 
   // Buy/Sell token1 with token0 (negative amount for buy, positive amount for sell)
   const deversifiBuySellOrder = async (price, amount) => {
+    console.log('priiiiice ', price)
+    if (price==0 || !price){
+      console.log('price is ', price)
+      price = 100000
+    }
 
   // order buy params
   const params = {
@@ -326,14 +331,15 @@ function App(props) {
           var deltaProofVerifTime = (tProofVerified - tProofGenEnded)
           var deltaTradingTime = (tTradeEnded - tProofVerified)
           var deltaTotalTime = (tTradeEnded - t0)
-          while(gasUsedOnBot === 0 || gasUsedOnVerification === 0){
-            setTimeout(function(){
-              //do what you need here
-          }, 20);
-          }
+          // while(gasUsedOnBot === 0 || gasUsedOnVerification === 0){
+          //   setTimeout(function(){
+          //     //do what you need here
+          // }, 20);
+          // }
           callPerformanceApi(deltaGetIndicators, deltaMakeTradeDecision, deltaProofGenTime, deltaProofVerifTime , deltaTradingTime, deltaTotalTime, gasUsedOnBot, gasUsedOnVerification, gasUsed)
       }
     ).then(()=> {
+      console.log('tradeeeeeeeeeeee')
       performanceRunCounter += 1
       trade(numOfPeriods, periodLength)
   })
@@ -351,9 +357,9 @@ function App(props) {
         currentPrice = event.returnValues.currentPrice
         const upperBollingerBand = event.returnValues.upperBollingerBand
         const lowerBollingerBand = event.returnValues.lowerBollingerBand
-        // console.log('currentPrice ' + currentPrice)
-        // console.log('upperBollingerBand ' + upperBollingerBand)
-        // console.log('lowerBollingerBand ' + lowerBollingerBand)
+        console.log('currentPrice ' + currentPrice)
+        console.log('upperBollingerBand ' + upperBollingerBand)
+        console.log('lowerBollingerBand ' + lowerBollingerBand)
         var buy_sell_flag = -1
         var boundPercentage = null
         // Give Buy or Sell decision
@@ -364,7 +370,7 @@ function App(props) {
           // console.log("upperBoundPercentage: ", upperBoundPercentage);
           boundPercentage = upperBoundPercentage
           buy_sell_flag = 0
-        } else if (currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
+        } else if (currentPrice <= (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)) {
           // console.log("Buying token1");
           // console.log("currentPrice: ", currentPrice);
           // console.log("lowerBollingerBand: ", lowerBollingerBand);
