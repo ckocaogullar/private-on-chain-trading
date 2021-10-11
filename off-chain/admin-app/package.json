@@ -1,0 +1,17 @@
+{
+  "name": "admin-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "client": "cd client && yarn start",
+    "server": "nodemon server.js",
+    "dev": "./node_modules/.bin/concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
+  },
+  "dependencies": {
+    "dvf-client-js": "^2.2.0",
+    "express": "^4.16.4",
+    "fortmatic": "^2.2.1"
+  },
+  "devDependencies": {
+    "concurrently": "^4.0.1"
+  }
+}

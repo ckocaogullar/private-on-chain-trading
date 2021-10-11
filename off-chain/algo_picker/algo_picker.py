@@ -12,10 +12,73 @@ import multiprocessing as mp
 from subprocess import Popen, PIPE
 from tempfile import TemporaryFile  # used for standard out
 import numpy as np
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 
 # Strategies to be tested in this script
-strategies = ['bollinger', 'dema', 'macd', 'rsi', 'stddev',
-              'trend_bollinger', 'trend_ema', 'trust_distrust']
+strategies = ['stddev']
+# strategies = ['bollinger', 'dema', 'macd', 'rsi', 'stddev',
+#               'trend_bollinger', 'trend_ema', 'trust_distrust']
+
+dir = './'
+#dir = 'scripts/algo_picker/'
+
+params = {
+    'bollinger': {
+        'bollinger_size': [1, 40],
+        'bollinger_time': [1.0, 6.0],
+        'bollinger_upper_bound_pct': [-1.0, 30.0],
+        'bollinger_lower_bound_pct': [-1, 30]
+    },
+    'dema': {
+        'ema_short_period': [1, 20],
+        'ema_long_period': [20, 100],
+        'up_trend_threshold': [0, 50],
+        'down_trend_threshold': [0, 50],
+        'overbought_rsi_periods': [1, 50],
+        'overbought_rsi': [20, 100]
+    },
+    'macd': {
+        'ema_short_period': [1, 20],
+        'ema_long_period': [20, 100],
+        'signal_period': [1, 20],
+        'up_trend_threshold': [0, 50],
+        'down_trend_threshold': [0, 50],
+        'overbought_rsi_periods': [1, 50],
+        'overbought_rsi': [20, 100]
+    },
+    'rsi': {
+        'rsi_periods': [1, 200],
+        'oversold_rsi': [1, 100],
+        'overbought_rsi': [1, 100],
+        'rsi_recover': [1, 100],
+        'rsi_drop': [0, 100],
+        'rsi_divisor': [1, 10]
+    },
+    'stddev': {
+        'trendtrades_1': [2, 20],
+        'trendtrades_2': [4, 100]
+    },
+    'trend_bollinger': {
+        'bollinger_size': [1, 40],
+        'bollinger_time': [1.0, 6.0],
+        'bollinger_upper_bound_pct': [-1.0, 30.0],
+        'bollinger_lower_bound_pct': [-1, 30]
+    },
+    'trend_ema': {
+        'trend_ema': [1, 40],
+        'oversold_rsi_periods': [5, 50],
+        'oversold_rsi': [20, 100]
+    },
+    'trust_distrust': {
+        'sell_threshold': [1, 100],
+        'sell_threshold_max': [1, 100],
+        'sell_min': [1, 100],
+        'buy_threshold': [1, 100],
+        'buy_threshold_max': [1, 100],
+        'greed': [1, 100]
+    }
+}
 
 
 """
@@ -52,7 +115,7 @@ def find_unprofitable_periods():
         s = str(objPrcessManager.getProcessData(key)["stdout"], 'utf-8')
         process_date_stdout(dates, key, s)
 
-    with open('./scripts/algo_picker/results/dates.json', 'w') as file:
+    with open(dir + 'results/dates.json', 'w') as file:
         json.dump(dates, file)
 
 
@@ -63,7 +126,7 @@ optimised flag will be used later to test the strategies while their parameters 
 
 
 def backtest_strategies(optimisation_test=False):
-    with open('./scripts/algo_picker/results/dates.json', 'r') as file:
+    with open(dir + 'results/dates.json', 'r') as file:
         days = json.load(file)
     print(len(days.keys()))
     dicProcesses = dict()
@@ -88,9 +151,9 @@ def backtest_strategies(optimisation_test=False):
         for key in objPrcessManager.dicCompletedProcesses:
             s = str(objPrcessManager.getProcessData(key)["stdout"], 'utf-8')
             start_time, strat = key.split('.')
-            process_backtest_stdout(strategy_results, strat, start_time, s)
+            process_backtest_stdout(strategy_results, start_time, s)
         if not optimisation_test:
-            with open('./scripts/algo_picker/results/strategy_results/' + strategy + '.json', 'w') as file:
+            with open(dir + 'results/strategy_results/' + strategy + '.json', 'w') as file:
                 json.dump(strategy_results, file)
 
 
@@ -101,62 +164,6 @@ Optimises parameters through grid search
 
 
 def grid_search():
-    phenotypes = {
-        'bollinger': {
-            'bollinger_size': [1, 40],
-            'bollinger_time': [1.0, 6.0],
-            'bollinger_upper_bound_pct': [-1.0, 30.0],
-            'bollinger_lower_bound_pct': [-1, 30]
-        },
-        'dema': {
-            'ema_short_period': [1, 20],
-            'ema_long_period': [20, 100],
-            'up_trend_threshold': [0, 50],
-            'down_trend_threshold': [0, 50],
-            'overbought_rsi_periods': [1, 50],
-            'overbought_rsi': [20, 100]
-        },
-        'macd': {
-            'ema_short_period': [1, 20],
-            'ema_long_period': [20, 100],
-            'signal_period': [1, 20],
-            'up_trend_threshold': [0, 50],
-            'down_trend_threshold': [0, 50],
-            'overbought_rsi_periods': [1, 50],
-            'overbought_rsi': [20, 100]
-        },
-        'rsi': {
-            'rsi_periods': [1, 200],
-            'oversold_rsi': [1, 100],
-            'overbought_rsi': [1, 100],
-            'rsi_recover': [1, 100],
-            'rsi_drop': [0, 100],
-            'rsi_divisor': [1, 10]
-        },
-        'stddev': {
-            'trendtrades_1': [2, 20],
-            'trendtrades_2': [4, 100]
-        },
-        'trend_bollinger': {
-            'bollinger_size': [1, 40],
-            'bollinger_time': [1.0, 6.0],
-            'bollinger_upper_bound_pct': [-1.0, 30.0],
-            'bollinger_lower_bound_pct': [-1, 30]
-        },
-        'trend_ema': {
-            'trend_ema': [1, 40],
-            'oversold_rsi_periods': [5, 50],
-            'oversold_rsi': [20, 100]
-        },
-        'trust_distrust': {
-            'sell_threshold': [1, 100],
-            'sell_threshold_max': [1, 100],
-            'sell_min': [1, 100],
-            'buy_threshold': [1, 100],
-            'buy_threshold_max': [1, 100],
-            'greed': [1, 100]
-        }
-    }
     """
     For ease of reference, here is the format of strategy_results:
 
@@ -168,33 +175,64 @@ def grid_search():
             "percent_vs": float,
             "stdout": str
     """
-    for strategy in phenotypes.keys():
-        with open('./scripts/algo_picker/results/strategy_results/' + strategy + '.json', 'r') as file:
+
+    dicProcesses = dict()
+    objPrcessManager = Proc()
+    grid_results = dict()
+    for strategy in strategies:
+        with open(dir + 'results/strategy_results/' + strategy + '.json', 'r') as file:
             strategy_results = json.load(file)
-        pheno_ranges = dict()
-        ranges = list()
-        dicProcesses = dict()
-        objPrcessManager = Proc()
-        for phenotype in phenotypes[strategy]:
-            pheno_ranges[phenotype] = list(range(
-                phenotypes[strategy][phenotype][0], phenotypes[strategy][phenotype][1] + 1))
-            ranges.append(pheno_ranges[phenotype])
-            range_combinations = np.array(np.meshgrid(tuple(ranges)))
-        for key in strategy_results.keys():
-            try:
-                end_date = date(int(key[:4]), int(key[4:6]),
-                                int(key[6:])) + timedelta(days=27)
+
+        range_combinations = prepare_param_combinations(strategy)
+
+        for start_date in strategy_results.keys():
+            for comb in range_combinations:
+                end_date = date(int(start_date[:4]), int(start_date[4:6]),
+                                int(start_date[6:])) + timedelta(days=27)
                 end_date_str = str(end_date.year) + \
                     str(end_date.month).zfill(2) + str(end_date.day).zfill(2)
-                arg = "sim poloniex.ETH-USDC --start " + key + \
+                arg = "sim poloniex.ETH-USDC --start " + start_date + \
                     " --end " + end_date_str + "--strategy " + strategy + " --period 1h"
-            except:
-                print('Something went horribly wrong')
-            for comb in range_combinations:
-                # arg += list(pheno_ranges.keys())[]
-                pass
-            dicProcesses[key + "." + strategy] = ["zenbot", arg]
+                strategy_params = list(params[strategy].keys())
+                combination_str = '.'
+                for strategy_param in strategy_params:
+                    arg += ' ' + strategy_param + ' ' + \
+                        str(comb[strategy_params.index(strategy_param)])
+                    print('combination_str', combination_str)
+                    combination_str += str(
+                        comb[strategy_params.index(strategy_param)]) + '-'
+                print(arg)
+                combination_str = combination_str[:-1]
+                dicProcesses[start_date + "." + strategy +
+                             combination_str] = ["zenbot", arg]
+                print(start_date + "." + strategy +
+                      combination_str)
+                break
             objPrcessManager.run(dicProcesses)
+
+            for key in objPrcessManager.dicCompletedProcesses:
+                print('key is', key.strip())
+                s = str(objPrcessManager.getProcessData(
+                    key)["stdout"], 'utf-8')
+                #print('s: ', objPrcessManager.getProcessData(key))
+                process_grid_stdout(grid_results, start_date,
+                                    key.split('.')[-1], s)
+            with open(dir + 'results/grid_results/' + strategy + '.json', 'w') as file:
+                json.dump(strategy_results, file)
+            break
+
+
+def prepare_param_combinations(strategy):
+    param_ranges = dict()
+    ranges = list()
+    for param in params[strategy]:
+        param_ranges[param] = list(np.arange(
+            params[strategy][param][0], params[strategy][param][1] + 1, 1))
+
+        ranges.append(param_ranges[param])
+    range_combinations = np.stack(np.meshgrid(
+        *ranges), -1).reshape(-1, len(ranges))
+    return range_combinations
 
 
 """
@@ -203,7 +241,6 @@ Formats and saves the results of subprocesses called in find_unprofitable_period
 
 
 def process_date_stdout(dates, key, s):
-    print(s)
     s = re.sub(r'\x1b(\[.*?[@-~]|\].*?(\x07|\x1b\\))', '', s)
     buy_hold = float(re.search(r'buy hold: .* \(', s,
                                re.MULTILINE).group(0).replace('buy hold:', '').replace('(', '').strip())
@@ -219,8 +256,7 @@ Formats and saves the results of subprocesses called in backtest_strategies
 """
 
 
-def process_backtest_stdout(strategy_results, strat, start_time, s):
-    print(s)
+def process_backtest_stdout(strategy_results, start_time, s):
     s = re.sub(r'\x1b(\[.*?[@-~]|\].*?(\x07|\x1b\\))', '', s)
     end_balance = float(re.search(r'end balance: .* \(', s,
                                   re.MULTILINE).group(0).replace('end balance:', '').replace('(', '').strip())
@@ -238,13 +274,35 @@ def process_backtest_stdout(strategy_results, strat, start_time, s):
 
 
 """
+Formats and saves the results of subprocesses called in backtest_strategies 
+"""
+
+
+def process_grid_stdout(strategy_results, start_time, combination, s):
+    s = re.sub(r'\x1b(\[.*?[@-~]|\].*?(\x07|\x1b\\))', '', s)
+    end_balance = float(re.search(r'end balance: .* \(', s,
+                                  re.MULTILINE).group(0).replace('end balance:', '').replace('(', '').strip())
+    percent_vs = float(re.search(r'vs. buy hold: .*', s,
+                                 re.MULTILINE).group(0).replace('vs. buy hold:', '').replace('%', '').strip())
+    buy_hold = float(re.search(r'buy hold: .* \(', s,
+                               re.MULTILINE).group(0).replace('buy hold:', '').replace('(', '').strip())
+    if percent_vs > 0:
+        strategy_results[start_time] = {
+            'combination': combination,
+            'buy_hold': buy_hold,
+            'end_balance': end_balance,
+            'percent_vs': percent_vs,
+        }
+
+
+"""
 Prints out the number of times where buy & hold failed AND strategies have succeeded
 """
 
 
 def count_strategies():
     for strategy in strategies:
-        with open('./scripts/algo_picker/results/strategy_results/' + strategy + '.json', 'r') as file:
+        with open(dir + 'results/strategy_results/' + strategy + '.json', 'r') as file:
             results = json.load(file)
         print(strategy + ' ', len(results))
 
@@ -255,7 +313,7 @@ Prints out the number of times where buy & hold failed
 
 
 def count_unprofitable_periods():
-    with open('./scripts/algo_picker/results/dates.json', 'r') as file:
+    with open(dir + 'results/dates.json', 'r') as file:
         periods = json.load(file)
     print(len(periods))
 
@@ -376,6 +434,7 @@ def main():
     # find_unprofitable_periods()
     # count_strategies()
     # count_strategies()
+    grid_search()
     print('Programme finished at ', datetime.now())
 
 

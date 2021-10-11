@@ -1,0 +1,4 @@
+
+def main(field currentPrice, field lowerBollingerBand, private field lowerBoundPercentage) -> bool:
+  return currentPrice < (lowerBollingerBand / 100) * (100 + lowerBoundPercentage)
+
