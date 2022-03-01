@@ -2,7 +2,7 @@ const express = require('express');
 const { exec } = require('child_process');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 // const buyProof = require('../zokrates-proof/buy-proof/proof.json')
 // const sellProof = require('../zokrates-proof/sell-proof/proof.json')

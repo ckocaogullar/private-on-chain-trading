@@ -218,7 +218,6 @@ function App(props) {
 
   // Buy/Sell token1 with token0 (negative amount for buy, positive amount for sell)
   const deversifiBuySellOrder = async (price, amount) => {
-    console.log('priiiiice ', price)
     if (price==0 || !price){
       console.log('price is ', price)
       price = 100000

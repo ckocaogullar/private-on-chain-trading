@@ -25,6 +25,11 @@ To solve this issue and decrease the level of trust put on the bot admin, we inc
 
 ## Running the Code
 
+### Performance Measurement
+To be able to access your crypto funds and use them for trading, you need a cryptowallet. This project uses Metamask, one of the most acclaimed cryptowallets. However, the original Metamask extension asks for user permission for every transaction. This interferes with our performance measurements. We have modified the Metamask extension to bypass these permission requests.
+
+You need to clone the [modified Metamask repository](https://github.com/ckocaogullar15/metamask-extension) and build it locally following the instructions. You should then add the extension to your browser and login with your credentials. 
+
 ### On-chain Part
 
 * Make sure that you have a Node.js `>=12.0` installation.
@@ -45,10 +50,16 @@ npx hardhat --network localhost run scripts/deploy.js
 
 The `off-chain` folder contains the off-chain applications for the user and the trading bot's admin in two sub-folders `user-frontend` and `admin-frontend`.
 
-* As the contract is deployed, the terminal tab used for running the deployment command will display the *Contract Address*. On your text editor, open the `off-chain/frontend/user-frontend/src/config.js` and `off-chain/frontend/admin-frontend/src/config.js` files and replace the `CONTRACT_ADDRESS` with your contract's address.
+* As the contract is deployed, the terminal tab used for running the deployment command will display the *Contract Address*. On your text editor, open the `off-chain/user-app/src/bot-config.js` and `off-chain/admin-app/client/src/bot-config.js` files and replace the `BOT_CONTRACT_ADDRESS` with your contract's address.
 * Go to the project's root directory `private-on-chain-trading`, run the below commands in separate terminal windows:
 ```
-cd frontend/user-frontend
+cd admin-app
+npm install
+npm run start
+```
+and
+```
+cd admin-app/client
 npm install
 npm run start
 ```
@@ -60,4 +71,4 @@ npm run start
 ```
 to install the dependencies and get the frontend apps running.
 
-_*Note:*_ If you make any modifications to the contract, remember to compile the contract (`npx hardhat compile`) and update the ABI that the frontend apps use. The contract's ABI can be found in `on-chain/artifacts/contracts/BaseBot.sol/BaseBot.json`. Copying the `abi` from here, update the frontend apps' ABIs which are in the `off-chain/frontend/user-frontend/src/config.js` and `off-chain/frontend/admin-frontend/src/config.js`.
+_*Note:*_ If you make any modifications to the contract, remember to compile the contract (`npx hardhat compile`) and update the ABI that the frontend apps use. The contract's ABI can be found in `on-chain/artifacts/contracts/BaseBot.sol/BaseBot.json`. Copying the `abi` from here, update the frontend apps' ABIs which are in the `off-chain/admin-app/client/src/bot-config.js` and `off-chain/user-app/client/src/bot-config.js`.

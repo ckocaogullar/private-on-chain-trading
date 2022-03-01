@@ -9,6 +9,10 @@ You should give execution permission to the proof generation script as follows:
 
 You can start running both run the React app and Server concurrently.
 
-Download the dependencies using `npm install` or `yarn` both in the root folder (admin/frontend) and the client folder.
+## Instructions
+
+1. Install dependencies by running `npm install` both in `admin-app/` and `admin-app/client` folders
+1. Start the admin client and server with `yarn run start` command in `admin-app/` and `admin-app/client` on separate command line tabs
+1. 
 
 
