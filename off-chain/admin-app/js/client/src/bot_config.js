@@ -1,12 +1,9 @@
 // Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README
 
-export const BOT_CONTRACT_ADDRESS = '0xe204FD3f117c9b1D9c11dC66C6a4488b3A1458b6'
-// Ropsten address for the previous contract version
-//export const BOT_CONTRACT_ADDRESS = '0x97dEF834E0fd1e6325235850ee2bA3192A5f0d77'
-
+// export const BOT_CONTRACT_ADDRESS = '0xe204FD3f117c9b1D9c11dC66C6a4488b3A1458b6'
 
 // Hardhat Node address regularly used for this contract
-// export const BOT_CONTRACT_ADDRESS = '0xE05FB6Ef9451D4f459893f35241b77E689b97ccF'
+export const BOT_CONTRACT_ADDRESS = '0x0ed64d01D0B4B655E410EF1441dD677B695639E7'
 
 export const BOT_ABI = [
   {

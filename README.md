@@ -35,7 +35,7 @@ You need to clone the [modified Metamask repository](https://github.com/ckocaogu
 * Make sure that you have a Node.js `>=12.0` installation.
 * Go to the root directory of the project, that is `private-on-chain-trading`. Then, run the below commands to install the dependencies of the on-chain app.
 ```
-cd off-chain/
+cd on-chain/
 npm install
 ```
 * Start your personal blockchain using *Ganache* client (or use any network and modify the `hardhat-config.js` file accordingly)
