@@ -12,7 +12,9 @@ import subprocess
 import asyncio
 from threading import Thread
 import time
+import json
 from web3 import Web3
+from web3.gas_strategies.time_based import fast_gas_price_strategy
 
 upperBoundPercentage = 100
 lowerBoundPercentage = 100
@@ -24,55 +26,103 @@ indicatorsCaught = False
 tProofGenStarted = None
 
 web3 = Web3(Web3.HTTPProvider(config.URL))
+web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
 contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
 BotContract = web3.eth.contract(
     abi=config.BOT_ABI, address=contract_address)
 
 
-def generate_zkproof(proofType, currentPrice, bollingerBand, percentageBound):
+def generate_zkproof(proof_type, current_price, bollinger_band, percentage_bound):
+    print('Generating ZK Proof with proof_type {}, current_price {}, bollinger_band {}, percentage_bound {}'.format(proof_type, current_price, bollinger_band, percentage_bound))
     # go to the proof directory
-    subprocess.run(['export', 'PATH=$PATH:/Users/ceren/.zokrates/bin'])
+    output = subprocess.run(['export', 'PATH=$PATH:/Users/ceren/.zokrates/bin'], capture_output=True, shell=True)
+    print(output)
     # compile
-    subprocess.run(['cd', '../zokrates-proof/decision-proof'])
+    output = subprocess.run(['cd', '../../zokrates-proof/decision-proof'], shell=True, capture_output=True)
+    print(output)
     # execute the program
-    subprocess.run(['echo', proofType, currentPrice,
-                    bollingerBand, percentageBound])
-    subprocess.run(['zokrates', 'compute-witness', '-a', proofType,
-                    currentPrice, bollingerBand, percentageBound])
+    output =subprocess.run(['zokrates', 'compute-witness', '-a', proof_type,
+                    str(current_price), str(bollinger_band), str(percentage_bound)], shell=True, capture_output=True)
+    print(output)
     # generate a proof of computation
-    subprocess.run(['zokrates', 'generate-proof'])
+    output =subprocess.run(['zokrates', 'generate-proof'], shell=True, capture_output=True)
+    print(output)
+
+    # read and return proof
+    with open('../../zokrates-proof/decision-proof/proof.json', 'r') as file:
+        raw_proof_data = json.load(file)
+        print(raw_proof_data)
+        return raw_proof_data['proof']['a'], raw_proof_data['proof']['b'], raw_proof_data['proof']['c'], raw_proof_data['inputs']
 
 
 def get_current_price():
-    '''
-    const getCurrentPrice = async () => {
-        await botContract.methods.getCurrentPrice().send({from: account})
-        .on('receipt', function (receipt) {
-        // console.log(receipt)
-        })
-    }
-    '''
     BotContract.functions.getCurrentPrice().call({'from': config.ACCOUNT})
 
 
-def log_loop(tx_hash, x):
+def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
+    print('Deciding on the trade')
+    if (current_price >= (upper_bollinger_band / 100) * (100 - config.UPPER_BOUND_PERCENTAGE)):
+        print("Selling token1")
+        a, b, c, inputs = generate_zkproof(
+            'sell-proof', current_price, upper_bollinger_band, config.UPPER_BOUND_PERCENTAGE)
+        sign_and_send_tx('trade', {'a': [web3.toInt(hexstr=x) for x in a], 'b': [[web3.toInt(hexstr=x) for x in b[i]] for i in range(len(b))], 'c': [web3.toInt(hexstr=x) for x in c], 'inputs': [web3.toInt(hexstr=x) for x in inputs]})
+    elif (current_price < (lower_bollinger_band / 100) * (100 - config.LOWER_BOUND_PERCENTAGE)):
+        print("Buying token1")
+        a, b, c, inputs = generate_zkproof(
+            'buy-proof', current_price, lower_bollinger_band, config.LOWER_BOUND_PERCENTAGE)
+    return a, b, c, inputs
+
+
+def log_loop(tx_hash, event_name, poll_period):
     while True:
         try:
-            print('Trying to get the transaction receipt')
+            print('Trying to get the transaction receipt for', event_name)
             tx_receipt = web3.eth.get_transaction_receipt(tx_hash)
-            rich_logs = BotContract.events.TestEvent().processReceipt(tx_receipt)
-            print(rich_logs)
-            print(rich_logs[0]['args'])
-            break
+            print('Transaction receipt:', tx_receipt)
+            if event_name == 'BollingerIndicators':
+                rich_logs = BotContract.events.BollingerIndicators().processReceipt(tx_receipt)
+                print('Rich logs for BollingerIndicators: ', rich_logs)
+                break
+            elif event_name == 'ProofVerified':
+                rich_logs = BotContract.events.ProofVerified().processReceipt(tx_receipt)
+                print('Rich logs for ProofVerified: ', rich_logs)
+                break
         except:
-            time.sleep(5)
+            print('Except')
+            time.sleep(poll_period)
+    if event_name == 'BollingerIndicators':
+        decide_trade(rich_logs[0]['args']['currentPrice'], rich_logs[0]['args']['upperBollingerBand'], rich_logs[0]['args']['lowerBollingerBand'])
+
+
+def sign_and_send_tx(tx_name, tx_args):
+    event_name = ''
+    if tx_name == 'test':
+        tx = BotContract.functions.test().buildTransaction({'from': config.ACCOUNT, 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
+        event_name = 'TestEvent'
+    elif tx_name == 'calculateIndicators':
+        tx = BotContract.functions.calculateIndicators(tx_args['num_of_periods'], tx_args['period_length']).buildTransaction(
+            {'from': config.ACCOUNT, 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
+        event_name = 'BollingerIndicators'
+    elif tx_name == 'trade':
+        tx = BotContract.functions.trade(tx_args['a'], tx_args['b'], tx_args['c'], tx_args['inputs']).buildTransaction(
+            {'from': config.ACCOUNT, 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
+        event_name = 'ProofVerified'
+
+    signed_txn = web3.eth.account.sign_transaction(
+        tx, private_key=config.ACCOUNT_KEY)
+    tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    worker = Thread(target=log_loop, args=(
+        web3.toHex(tx_hash), event_name, 5))
+    worker.start()
+
 
 def trade(num_of_periods, period_length):
     # Get average gas price
     avg_price = web3.eth.generate_gas_price()
     print('Average price is', avg_price, 'wei')
 
-    price = BotContract.functions.getCurrentPrice().call({'from': config.ACCOUNT})
+    price = BotContract.functions.getCurrentPrice().call(
+        {'from': config.ACCOUNT})
     print('Current price is', price)
 
     # Fill in your account here
@@ -80,16 +130,17 @@ def trade(num_of_periods, period_length):
     print('Initial balance is', web3.fromWei(
         initial_balance, "ether"), 'ether')
 
-    tx = BotContract.functions.test().buildTransaction({'from': config.ACCOUNT, 'gas': 800000,  'gasPrice': web3.toWei(42, 'gwei'), 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
-    print(web3.eth.get_transaction_count(config.ACCOUNT))
-    print(tx)
-    signed_txn = web3.eth.account.sign_transaction(tx, private_key='bc6d600f6bf2a5ad83377dd8743e5fe30b14064ea8e082f3a83ee704cca0cfc0')
-    tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
-    print(len(web3.toHex(tx_hash)))
-    worker = Thread(target=log_loop, args=(web3.toHex(tx_hash), 5))
-    worker.start()
-    
+    # tx = BotContract.functions.test().buildTransaction({'from': config.ACCOUNT, 'gas': 800000,  'gasPrice': web3.toWei(42, 'gwei'), 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
+    # print(web3.eth.get_transaction_count(config.ACCOUNT))
+    # print(tx)
+    # signed_txn = web3.eth.account.sign_transaction(tx, private_key='bc6d600f6bf2a5ad83377dd8743e5fe30b14064ea8e082f3a83ee704cca0cfc0')
+    # tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    # print(len(web3.toHex(tx_hash)))
+    # worker = Thread(target=log_loop, args=(web3.toHex(tx_hash), 5))
+    # worker.start()
 
+    sign_and_send_tx('calculateIndicators', {
+                     'num_of_periods': num_of_periods, 'period_length': period_length})
 
     """
     const trade = async (numOfPeriods, periodLength) => {

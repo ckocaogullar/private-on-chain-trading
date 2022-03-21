@@ -6,9 +6,15 @@ URL = "https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"
 # Hardhat node URL
 # URL = 'http://127.0.0.1:8545/'
 
+# Bollinger variables:
+UPPER_BOUND_PERCENTAGE = 90
+LOWER_BOUND_PERCENTAGE = 90
+
 BOT_CONTRACT_ADDRESS = '0xFB688455ff51982B60F7e688BA2738D09913daDf'
 
+# Account and its private key
 ACCOUNT = '0x569ECED9B05495f8D0766bd3A771F16BdC8b18C3'
+ACCOUNT_KEY = 'bc6d600f6bf2a5ad83377dd8743e5fe30b14064ea8e082f3a83ee704cca0cfc0'
 
 # Ropsten address for the previous contract version
 # BOT_CONTRACT_ADDRESS = '0x97dEF834E0fd1e6325235850ee2bA3192A5f0d77'
