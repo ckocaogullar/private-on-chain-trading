@@ -3,16 +3,20 @@
 # Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import argparse
 import socket
-import sys
+import requests
 import config
 import time
 import subprocess
-import asyncio
 from threading import Thread
 import time
 import json
+import js2py
+from js2py import require
+from hashlib import sha512
+from ecdsa import SigningKey, VerifyingKey, NIST384p
+from eth_account.messages import defunct_hash_message
+from eth_account import Account
 from web3 import Web3
 from web3.gas_strategies.time_based import fast_gas_price_strategy
 
@@ -30,6 +34,22 @@ web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
 contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
 BotContract = web3.eth.contract(
     abi=config.BOT_ABI, address=contract_address)
+
+def sign(msg):
+    # message = defunct_hash_message(text=msg)
+    # signed_message = Account.sign_message(message, private_key=config.STARK_PRIVATE_KEY)
+    # print(signed_message)
+    
+    # js1 = 'console.log( "Hello World!" )'
+    # res1 = js2py.eval_js(js1)
+    # print(res1)
+
+    # ctx = EvalJs(enable_require=True)
+    # ctx.eval("var DVF = require('dvf-client-js/src/dvf');")
+    # ctx.execute("esprima.parse('var a = 1')")
+
+    # DVF = require('dvf-client-js') # https://www.npmjs.com/package/random-int
+    CryptoJS = js2py.require('crypto-js')
 
 
 def generate_zkproof(proof_type, current_price, upper_bollinger_band, lower_bollinger_band, buy_sell_flag, percentage_bound):
@@ -51,6 +71,41 @@ def generate_zkproof(proof_type, current_price, upper_bollinger_band, lower_boll
         print(raw_proof_data)
         return raw_proof_data['proof']['a'], raw_proof_data['proof']['b'], raw_proof_data['proof']['c'], raw_proof_data['inputs']
 
+
+def deversifi_buy_sell_order(price, amount):
+    pass
+
+
+# const deversifiBuySellOrder = async (price, amount) => {
+# if (price==0 || !price){
+#     console.log('price is ', price)
+#     price = 100000
+# }
+
+# // order buy params
+# const params = {
+# symbol: "ETH:USDC",
+# amount: amount,
+# price,
+# starkPrivateKey
+# }
+
+# const dvfConfig = {
+# api: 'https://api.stg.deversifi.com',
+# wallet: {
+#     type: 'tradingKey',
+#     meta: {
+#     starkPrivateKey
+#     }
+# }
+# }
+
+# const dvf = await DVF(web3, dvfConfig);
+
+# // Buy order placing
+# const rOrder = await dvf.submitOrder(params)
+# console.info('order receipt', JSON.stringify(rOrder))
+# }
 
 def get_current_price():
     BotContract.functions.getCurrentPrice().call({'from': config.ACCOUNT})
@@ -388,7 +443,8 @@ def main():
     # rich_logs = contract.events.TestEvent().processReceipt(tx_receipt)
     # print(rich_logs)
     # print(rich_logs[0]['args'])
-    trade(10, 10)
+    # trade(10, 10)
+    print(sign('v2-1647945480.221'))
 
 
 if __name__ == '__main__':

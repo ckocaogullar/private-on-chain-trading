@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 
 const fs = require('fs');
 
-let jsonData = require('../performance.json');
+let jsonData = require('../../performance.json');
 
 var memory = {
     table: []

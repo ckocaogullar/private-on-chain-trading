@@ -154,7 +154,7 @@ function App(props) {
     const dvf = await DVF(web3, dvfConfig)
 
     //const depositResponse = await dvf.deposit('ETH', 1, starkPrivateKey)
-    const depositResponse = await dvf.depositV2({ token: 'ETH', amount: 5 })
+    const depositResponse = await dvf.depositV2({ token: 'ETH', amount: 0.00000001 })
 
     
     await waitForDepositCreditedOnChain(dvf, depositResponse)
