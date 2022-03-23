@@ -12,7 +12,6 @@ from threading import Thread
 import time
 import json
 import js2py
-from js2py import require
 from hashlib import sha512
 from ecdsa import SigningKey, VerifyingKey, NIST384p
 from eth_account.messages import defunct_hash_message
@@ -44,12 +43,48 @@ def sign(msg):
     # res1 = js2py.eval_js(js1)
     # print(res1)
 
-    # ctx = EvalJs(enable_require=True)
-    # ctx.eval("var DVF = require('dvf-client-js/src/dvf');")
+    # ctx = js2py.EvalJs(enable_require=True)
+    # js2py.run_file('./deversifi-webpack/dist/main.js', context=ctx)
     # ctx.execute("esprima.parse('var a = 1')")
 
     # DVF = require('dvf-client-js') # https://www.npmjs.com/package/random-int
-    CryptoJS = js2py.require('crypto-js')
+    # ledgerHQ = js2py.require('@ledgerhq/hw-transport-node-hid')
+
+    '''
+    For this import to be able to work, you should modify your js2py/node_import.py by adding @ledgerhq/hw-transport-node-hid to line 24:
+
+    + 'cd %s;npm install babel-core babel-cli babel-preset-es2015 babel-polyfill babelify browserify browserify-shim @ledgerhq/hw-transport-node-hid'
+    - 'cd %s;npm install babel-core babel-cli babel-preset-es2015 babel-polyfill babelify browserify browserify-shim'
+
+    '''
+    # DVF = js2py.require('dvf-client-js/src/dvf')
+    # js2py.translate_file('./deversifi-webpack/dist/main.js', 'deversifi.py')
+
+    # import deversifi
+    # deversifi.helloWorld()
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+
+    params = {
+        "body": "{\"cid\":\"long-123\",\"type\":\"EXCHANGE LIMIT\",\"symbol\":\"ETH:USDT\",\"amount\":0.1,\"price\":1000,\"meta\":{\"starkOrder\":{\"vaultIdSell\":1229892728,\"vaultIdBuy\":370326731,\"amountSell\":\"97400000\",\"amountBuy\":\"100000000000000000\",\"tokenSell\":\"0x2\",\"tokenBuy\":\"0x1\",\"nonce\":0,\"expirationTimestamp\":438947},\"starkMessage\":\"597f31e19f2273413833ed1408edd7a2c60e9f82422852a1be7d11049be3268\",\"ethAddress\":\"0x341E46a49F15785373edE443Df0220DEa6a41Bbc\",\"starkPublicKey\":{\"x\":\"00894dc6ae7cb67ba4ee649d3d46afd07c60502fb3477923b1f8185fb02d3580\",\"y\":\"32db0b60b218a8b4b45c2809c3a8e2a1a7ff436d3af889e5ce01046c8fd829a\"},\"starkSignature\":{\"r\":\"5d14357fcf8f489218de0855267c6f64bc463135debf62680ad796e63cd6d3b\",\"s\":\"786ab874d91e3a5871134955fcb768914754760a0ada326af67f758f32819cf\",\"recoveryParam\":0}},\"feeRate\":0.1}",
+    }
+
+    url = "https://api.stg.deversifi.com/v1/trading/w/submitOrder"
+
+    response = requests.request(
+        "POST",
+        url,
+        headers=headers,
+        data=params["body"],
+    )
+
+    print(json.dumps(response.json(), indent=2))
+
+    # {"pending":true,"cancelRequested":false,"isPostOnly":false,"isHidden":false,"isFillOrKill":false,"isSlippageDisabled":false,"user":"0x569eced9b05495f8d0766bd3a771f16bdc8b18c3","symbol":"ETH:USDC","amount":-1,"type":"EXCHANGE LIMIT","price":20000000,"feeRate":0.002,"meta":{"ethAddress":"0x569eced9b05495f8d0766bd3a771f16bdc8b18c3","feature":"UNKNOWN","starkPublicKey":{"x":"00894dc6ae7cb67ba4ee649d3d46afd07c60502fb3477923b1f8185fb02d3580","y":"32db0b60b218a8b4b45c2809c3a8e2a1a7ff436d3af889e5ce01046c8fd829a"},"starkOrder":{"vaultIdSell":1229892728,"vaultIdBuy":370326731,"amountSell":"100000000","amountBuy":"19960000000000","tokenSell":"0xb333e3142fe16b78628f19bb15afddaef437e72d6d7f5c6c20c6801a27fba6","tokenBuy":"0x177c7baa25b82a6565927ffd0322b64c672c6b3f79da010a0b798405c66caa6","nonce":765726416,"expirationTimestamp":462094},"starkSignature":{"r":"6db1b9b8bf8a549e65f417c41e3cc6017370d5bce3c00221f871ca32289ef39","s":"3102af84b1eb543172875c0ed27261059d34057d3035147e8ba77577888a91c"},"platform":"DESKTOP","starkMessage":"5e9a10b65c81bde6a983e5eef9ee99826b0d0ffa8b8afe556118217e91dd3e9"},"_id":"Gpkrdbwifgq","tokenBuy":"USDC","tokenSell":"ETH","tokenSellLockedBalance":"100000000","createdAt":"2022-03-22T22:55:20.635Z","updatedAt":"2022-03-22T22:55:20.635Z"}
+
 
 
 def generate_zkproof(proof_type, current_price, upper_bollinger_band, lower_bollinger_band, buy_sell_flag, percentage_bound):
