@@ -14,8 +14,8 @@ import pathlib
 # output = subprocess.run(
 #         ['export', path], capture_output=True, shell=True)
 
-# from web3 import Web3
-# from web3.gas_strategies.time_based import fast_gas_price_strategy
+from web3 import Web3
+from web3.gas_strategies.time_based import fast_gas_price_strategy
 
 upperBoundPercentage = 100
 lowerBoundPercentage = 100
@@ -195,11 +195,13 @@ def main():
     # global BotContract
 
     print('Yello!')
-    # web3 = Web3(Web3.HTTPProvider(config.URL))
-    # web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
-    # contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
-    # BotContract = web3.eth.contract(abi=config.BOT_ABI, address=contract_address)
-
+    web3 = Web3(Web3.HTTPProvider(config.URL))
+    web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
+    print(web3)
+    contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
+    BotContract = web3.eth.contract(abi=config.BOT_ABI, address=contract_address)
+    print(BotContract)
+    
     # trigger_trade(10,10)
 
 if __name__ == "__main__":
