@@ -195,13 +195,13 @@ def main():
     # global BotContract
 
     print('Yello!')
-    web3 = Web3(Web3.HTTPProvider(config.URL))
-    web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
-    print(web3)
-    contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
-    BotContract = web3.eth.contract(abi=config.BOT_ABI, address=contract_address)
-    print(BotContract)
-    
+    # web3 = Web3(Web3.HTTPProvider(config.URL))
+    # web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
+    # print(web3)
+    # contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
+    # BotContract = web3.eth.contract(abi=config.BOT_ABI, address=contract_address)
+    # print(BotContract)
+
     # trigger_trade(10,10)
 
 if __name__ == "__main__":
