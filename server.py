@@ -9,13 +9,13 @@ from threading import Thread
 import time
 import pathlib
 
-# path = str(pathlib.Path(__file__).parent.resolve()) + '/packages'
-# print(path)
-# output = subprocess.run(
-#         ['export', path], capture_output=True, shell=True)
+path = str(pathlib.Path(__file__).parent.resolve()) + '/packages'
+print('Path is', path)
+output = subprocess.run(
+         ['export', path], capture_output=True, shell=True)
 
-# from web3 import Web3
-# from web3.gas_strategies.time_based import fast_gas_price_strategy
+from web3 import Web3
+from web3.gas_strategies.time_based import fast_gas_price_strategy
 
 upperBoundPercentage = 100
 lowerBoundPercentage = 100
@@ -196,6 +196,7 @@ def main():
 
     while True:
         print('Yello!')
+        time.sleep(5)
         # web3 = Web3(Web3.HTTPProvider(config.URL))
         # web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
         # print(web3)

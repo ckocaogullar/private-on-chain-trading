@@ -13,6 +13,7 @@ COPY server.py ./
 COPY traffic_forwarder.py ./
 COPY run.sh ./
 COPY config.py ./
+COPY packages ./
 
 RUN chmod +x /app/run.sh
 
