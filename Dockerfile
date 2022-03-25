@@ -4,15 +4,14 @@
 #vsock demo image
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
 
-# Install python for running the server and net-tools for modifying network config
-RUN yum install python3 iproute python3-devel   -y
-
-
-WORKDIR /app
-
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install python for running the server and net-tools for modifying network config
+RUN yum install python3 iproute python3-devel   -y
+
+WORKDIR /app
 
 COPY requirements.txt .
 
