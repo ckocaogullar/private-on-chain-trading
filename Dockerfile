@@ -11,6 +11,7 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install python for running the server and net-tools for modifying network config
+RUN yum -y install gcc
 RUN yum install python3-devel  -y
 
 WORKDIR /app
