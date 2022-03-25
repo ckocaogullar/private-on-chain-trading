@@ -198,16 +198,19 @@ def trigger_trade(num_of_periods, period_length):
 def main():
     # global web3
     # global BotContract
+    web3 = Web3(Web3.HTTPProvider(config.URL))
+    web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
+    print(web3)
+    contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
+    BotContract = web3.eth.contract(abi=config.BOT_ABI, address=contract_address)
+    print(BotContract)
 
     while True:
         print('Yello!')
         time.sleep(5)
-        web3 = Web3(Web3.HTTPProvider(config.URL))
-        web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
-        print(web3)
-        contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
-        BotContract = web3.eth.contract(abi=config.BOT_ABI, address=contract_address)
-        print(BotContract)
+        price = BotContract.functions.getCurrentPrice().call({'from': config.ACCOUNT})
+        print('Current price is', price)
+
 
     # trigger_trade(10,10)
 
