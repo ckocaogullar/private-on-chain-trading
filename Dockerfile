@@ -5,7 +5,8 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
 
 # Install python for running the server and net-tools for modifying network config
-RUN yum install python3 iproute   -y
+RUN yum install python3 iproute python3-devel   -y
+
 
 WORKDIR /app
 
