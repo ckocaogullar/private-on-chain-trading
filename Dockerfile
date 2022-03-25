@@ -9,11 +9,18 @@ RUN yum install python3 iproute   -y
 
 WORKDIR /app
 
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
 COPY server.py ./
 COPY traffic_forwarder.py ./
 COPY run.sh ./
 COPY config.py ./
-COPY packages ./
 
 RUN chmod +x /app/run.sh
 

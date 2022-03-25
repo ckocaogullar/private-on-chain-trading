@@ -9,14 +9,18 @@ from threading import Thread
 import time
 import pathlib
 
-path = 'PYTHONPATH=$HOME/' + str(pathlib.Path(__file__).parent.resolve()) + '/packages:$PYTHONPATH'
+path = 'PYTHONPATH=$PYTHONPATH:$HOME/' + str(pathlib.Path(__file__).parent.resolve()) + '/packages'
+sys.path.insert(0, '/absolute/path/to/package')
 print('Path is', path)
 output = subprocess.run(
          ['export', path], capture_output=True, shell=True)
 
 
-from web3 import Web3
-from web3.gas_strategies.time_based import fast_gas_price_strategy
+try:
+    from web3 import Web3
+    from web3.gas_strategies.time_based import fast_gas_price_strategy
+except Exception as e:
+    print(e)
 
 upperBoundPercentage = 100
 lowerBoundPercentage = 100
