@@ -9,11 +9,11 @@ from threading import Thread
 import time
 import pathlib
 
-path = 'PYTHONPATH=$PYTHONPATH:$HOME/' + str(pathlib.Path(__file__).parent.resolve()) + '/packages'
-sys.path.insert(0, '/absolute/path/to/package')
-print('Path is', path)
-output = subprocess.run(
-         ['export', path], capture_output=True, shell=True)
+# path = 'PYTHONPATH=$PYTHONPATH:$HOME/' + str(pathlib.Path(__file__).parent.resolve()) + '/packages'
+# sys.path.insert(0, '/absolute/path/to/package')
+# print('Path is', path)
+# output = subprocess.run(
+#          ['export', path], capture_output=True, shell=True)
 
 
 try:
