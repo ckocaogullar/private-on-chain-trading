@@ -14,8 +14,8 @@ import pathlib
 # output = subprocess.run(
 #         ['export', path], capture_output=True, shell=True)
 
-from web3 import Web3
-from web3.gas_strategies.time_based import fast_gas_price_strategy
+# from web3 import Web3
+# from web3.gas_strategies.time_based import fast_gas_price_strategy
 
 upperBoundPercentage = 100
 lowerBoundPercentage = 100
