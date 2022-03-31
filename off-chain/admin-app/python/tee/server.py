@@ -110,7 +110,7 @@ def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
         sign(proof_args['buySellFlag'])
         witness_input = ''
         for key in proof_args:
-            witness_input += str(proof_args[key])
+            witness_input += str(proof_args[key]) + ' '
         print('witness_input')
         print(witness_input)
 
@@ -122,7 +122,7 @@ def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
         print(proof_args)
         witness_input = ''
         for key in proof_args:
-            witness_input += str(proof_args[key])
+            witness_input += str(proof_args[key]) + ' '
         print('witness_input')
         print(witness_input)
 
@@ -224,6 +224,7 @@ def save_key(pk, filename):
         file.write(str.encode(str(int(pk.fe))))
 
 def sign(raw_msg):
+    raw_msg = str(raw_msg)
     private_key = get_private_key()
     public_key = get_public_key()
     msg = hashlib.sha512(raw_msg.encode("utf-8")).digest()
@@ -258,22 +259,23 @@ def server_handler(args):
 
 
 def main():
-    # global web3
-    # global BotContract
-    # web3 = Web3(Web3.HTTPProvider(config.URL))
-    # web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
-    # print(web3)
-    # contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
-    # BotContract = web3.eth.contract(
-    #     abi=config.BOT_ABI, address=contract_address)
-    # print(BotContract)
-    # trigger_trade(10,10)
-    raw_msg = 'hey'
-    sig = sign(raw_msg)
-    msg = hashlib.sha512(raw_msg.encode("utf-8")).digest()
-    pk = get_public_key()
-    is_verified = pk.verify(sig, msg)
-    print(is_verified)
+    global web3
+    global BotContract
+    web3 = Web3(Web3.HTTPProvider(config.URL))
+    web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
+    print(web3)
+    contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
+    BotContract = web3.eth.contract(
+        abi=config.BOT_ABI, address=contract_address)
+    print(BotContract)
+    trigger_trade(10,10)
+
+    # raw_msg = 'hey'
+    # sig = sign(raw_msg)
+    # msg = hashlib.sha512(raw_msg.encode("utf-8")).digest()
+    # pk = get_public_key()
+    # is_verified = pk.verify(sig, msg)
+    # print(is_verified)
 
 
     # parser = argparse.ArgumentParser(prog='vsock-sample')
