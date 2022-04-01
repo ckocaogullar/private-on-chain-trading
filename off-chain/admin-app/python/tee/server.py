@@ -81,7 +81,14 @@ class VsockListener:
                 zkproof = from_client.recv(1024).decode()
                 print("Proof received: " + zkproof)
 
-                sign_and_send_tx('trade', zkproof.split())
+                proof_params = dict()
+                zkproof = zkproof.split(':')
+                proof_params['a'] = [s.strip() for s in zkproof[0].split()]
+                proof_params['b'] = [s.strip() for s in zkproof[1].split()]
+                proof_params['c'] = [s.strip() for s in zkproof[2].split()]
+                proof_params['inputs'] = [s.strip() for s in zkproof[3].split()]
+                print('Proof params received from the host:', proof_params)
+                sign_and_send_tx('trade', proof_params)
 
                 from_client.close()
                 print("Client call closed")
@@ -165,7 +172,7 @@ def sign_and_send_tx(tx_name, tx_args):
         event_name = 'BollingerIndicators'
     elif tx_name == 'trade':
         print('Sending the proof to the smart contract to get it verified')
-        tx = BotContract.functions.trade(tx_args[0], tx_args[1], tx_args[2], tx_args[3]).buildTransaction(
+        tx = BotContract.functions.trade(tx_args['a'], tx_args['b'], tx_args['c'], tx_args['inputs']).buildTransaction(
             {'from': config.ACCOUNT, 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
         event_name = 'ProofVerified'
 
