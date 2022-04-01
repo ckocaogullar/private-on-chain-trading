@@ -266,18 +266,15 @@ def server_handler(args):
 
 
 def main():
-    while True:
-        print('Yello!')
-        time.sleep(3)
-    # global web3
-    # global BotContract
-    # web3 = Web3(Web3.HTTPProvider(config.URL))
-    # web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
-    # print(web3)
-    # contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
-    # BotContract = web3.eth.contract(
-    #     abi=config.BOT_ABI, address=contract_address)
-    # print(BotContract)
+    global web3
+    global BotContract
+    web3 = Web3(Web3.HTTPProvider(config.URL))
+    web3.eth.set_gas_price_strategy(fast_gas_price_strategy)
+    print(web3)
+    contract_address = web3.toChecksumAddress(config.BOT_CONTRACT_ADDRESS)
+    BotContract = web3.eth.contract(
+        abi=config.BOT_ABI, address=contract_address)
+    print(BotContract)
     # trigger_trade(10,10)
 
     # raw_msg = 'hey'
@@ -288,24 +285,24 @@ def main():
     # print(is_verified)
 
 
-    # parser = argparse.ArgumentParser(prog='vsock-sample')
-    # parser.add_argument("--version", action="version",
-    #                     help="Prints version information.",
-    #                     version='%(prog)s 0.1.0')
-    # subparsers = parser.add_subparsers(title="options")
+    parser = argparse.ArgumentParser(prog='vsock-sample')
+    parser.add_argument("--version", action="version",
+                        help="Prints version information.",
+                        version='%(prog)s 0.1.0')
+    subparsers = parser.add_subparsers(title="options")
 
-    # server_parser = subparsers.add_parser("server", description="Server",
-    #                                       help="Listen on a given port.")
-    # server_parser.add_argument(
-    #     "port", type=int, help="The local port to listen on.")
-    # server_parser.set_defaults(func=server_handler)
+    server_parser = subparsers.add_parser("server", description="Server",
+                                          help="Listen on a given port.")
+    server_parser.add_argument(
+        "port", type=int, help="The local port to listen on.")
+    server_parser.set_defaults(func=server_handler)
 
-    # if len(sys.argv) < 2:
-    #     parser.print_usage()
-    #     sys.exit(1)
+    if len(sys.argv) < 2:
+        parser.print_usage()
+        sys.exit(1)
 
-    # args = parser.parse_args()
-    # args.func(args)
+    args = parser.parse_args()
+    args.func(args)
 
 
 
