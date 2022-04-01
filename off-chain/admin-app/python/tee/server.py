@@ -54,6 +54,7 @@ class VsockListener:
         self.sock.listen(self.conn_backlog)
 
     def recv_data(self):
+        global witness_input
         # Receive data from a remote endpoint
         while True:
             try:
@@ -68,7 +69,7 @@ class VsockListener:
                 # Call the external URL
                 # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
                 trigger_trade(10, 10)
-
+                print('Sending witness input:', witness_input)
                 # Send back the response
                 from_client.send(str(witness_input).encode())
 
