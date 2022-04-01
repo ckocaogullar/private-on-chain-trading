@@ -83,11 +83,13 @@ class VsockListener:
 
                 proof_params = dict()
                 zkproof = zkproof.split(':')
-                proof_params['a'] = [s.strip() for s in zkproof[0].split()]
-                proof_params['b'] = [[s.strip() for s in zkproof[1].split()], [
-                    s.strip() for s in zkproof[2].split()]]
-                proof_params['c'] = [s.strip() for s in zkproof[3].split()]
-                proof_params['inputs'] = [s.strip()
+                proof_params['a'] = [int(s.strip())
+                                     for s in zkproof[0].split()]
+                proof_params['b'] = [[int(s.strip()) for s in zkproof[1].split()], [
+                    int(s.strip()) for s in zkproof[2].split()]]
+                proof_params['c'] = [int(s.strip())
+                                     for s in zkproof[3].split()]
+                proof_params['inputs'] = [int(s.strip())
                                           for s in zkproof[4].split()]
                 print('Proof params received from the host:', proof_params)
                 sign_and_send_tx('trade', proof_params)
