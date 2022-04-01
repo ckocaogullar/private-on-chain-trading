@@ -7,7 +7,6 @@ import socket
 import sys
 import subprocess
 
-def get_public
 
 def generate_zkproof(signature, current_price, upper_bollinger_band, lower_bollinger_band, buy_sell_flag, percentage_bound):
     # go to the proof directory
