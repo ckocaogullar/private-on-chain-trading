@@ -1,5 +1,24 @@
-def main(field currentPrice, field upperBollingerBand, field lowerBollingerBand, private field buy_sell_flag, private field boundPercentage) -> bool:
-  // buy_sell_flag == 1 means buy, buy_sell_flag == 0 means sell
-  bool verified = if buy_sell_flag == 1 then currentPrice <= (lowerBollingerBand / 100) * (100 + boundPercentage) else currentPrice > (upperBollingerBand / 100) * (100 - boundPercentage) fi
-  return verified
+from "ecc/babyjubjubParams" import BabyJubJubParams
+import "signatures/verifyEddsa.code" as verifyEddsa
+import "ecc/babyjubjubParams.code" as context
+
+// currentPrice: price value that went into the trade decision
+// upperBollingerBand: Bollinger band that was used for the sell decision
+// lowerBollingerBand: Bollinger band that was used for the buy decision
+// buySellFlag: 1 means buy, 0 means sell
+// boundPercentage: Tolerance percentage to make buy or sell decision
+// R, S: Signature pair (R, S). An EdDSA signature on a message {\displaystyle M}M by public key {\displaystyle A}A is the pair {\displaystyle (R,S)}{\displaystyle (R,S)}
+// A: The public key
+// M0: msg.hex()[:64]
+// M1 = msg.hex()[64:]
+def main(field currentPrice, field upperBollingerBand, field lowerBollingerBand, private field buySellFlag, private field boundPercentage, private field[2] R, private field S, field[2] A, u32[8] M0, u32[8] M1) -> (bool):
+
+	BabyJubJubParams context = context()
+	
+    bool signatureVerified = verifyEddsa(R, S, A, M0, M1, context)
+
+    bool tradeDecisionVerified = if buySellFlag == 1 then currentPrice <= (lowerBollingerBand / 100) * (100 + boundPercentage) else currentPrice > (upperBollingerBand / 100) * (100 - boundPercentage) fi
+
+	return signatureVerified && tradeDecisionVerified
+
 
