@@ -114,7 +114,7 @@ def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
         proof_args['boundPercentage'] = upperBoundPercentage
         proof_args['buySellFlag'] = 0
         print(proof_args.keys())
-        # sign(proof_args['buySellFlag'])
+        sign(proof_args['buySellFlag'])
         witness_input = ''
         for key in proof_args:
             witness_input += str(proof_args[key]) + ' '

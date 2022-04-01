@@ -6,19 +6,21 @@ import argparse
 import socket
 import sys
 import subprocess
+import json
 
 
-def generate_zkproof(signature, current_price, upper_bollinger_band, lower_bollinger_band, buy_sell_flag, percentage_bound):
+def generate_zkproof(enclave_data):
     # go to the proof directory
     output = subprocess.run(
         ['export', 'PATH=$PATH:/Users/ceren/.zokrates/bin'], capture_output=True, shell=True)
     print(output)
     # execute the program
-    output = subprocess.run(['zokrates', 'compute-witness', '-a', str(current_price), str(upper_bollinger_band), str(
-        lower_bollinger_band), str(buy_sell_flag), str(percentage_bound)], capture_output=True, cwd='../../zokrates-proof/decision-proof')
+    output = subprocess.run(['zokrates', 'compute-witness', '-a', enclave_data],
+                            capture_output=True, cwd='../../zokrates-proof/decision-proof')
     print(output)
     # generate a proof of computation
-    output = subprocess.run(['zokrates', 'generate-proof'], capture_output=True, cwd='../../zokrates-proof/decision-proof')
+    output = subprocess.run(['zokrates', 'generate-proof'],
+                            capture_output=True, cwd='../../zokrates-proof/decision-proof')
     print(output)
 
     # read and return proof
@@ -27,14 +29,15 @@ def generate_zkproof(signature, current_price, upper_bollinger_band, lower_bolli
         print(raw_proof_data)
         return raw_proof_data['proof']['a'], raw_proof_data['proof']['b'], raw_proof_data['proof']['c'], raw_proof_data['inputs']
 
-# To call the client, you have to pass: CID of the enclave, Port for remote server, 
+# To call the client, you have to pass: CID of the enclave, Port for remote server,
 # and Query string that will be processed in the Nitro Enclave. For Example:
 # $ python3 client.py client 19 5005 "us-east-1"
+
+
 class VsockStream:
     # Client
     def __init__(self, conn_timeout=None):
         self.conn_timeout = conn_timeout
-
 
     def connect(self, endpoint):
         # Connect to the remote endpoint with CID and PORT specified.
@@ -43,8 +46,7 @@ class VsockStream:
             self.sock.settimeout(self.conn_timeout)
             self.sock.connect(endpoint)
         except ConnectionResetError as e:
-            print("Caught error ", str(e.strerror)," ",str(e.errno))
-
+            print("Caught error ", str(e.strerror), " ", str(e.errno))
 
     def send_data(self, data):
         # Send data to the remote endpoint
@@ -53,8 +55,9 @@ class VsockStream:
         self.sock.send(data.encode())
         print("Data Sent ", data)
         # receiving responce back
-        data =  self.sock.recv(1024).decode()  # receive response
+        data = self.sock.recv(1024).decode()  # receive response
         print('Received from server: ' + data)  # show in terminal
+        generate_zkproof(data)
         self.sock.close()
 
 
@@ -66,7 +69,7 @@ def client_handler(args):
     client.connect(endpoint)
     # Send provided query and handle the response
     client.send_data(args.query)
-    
+
 
 def main():
     # Handling of input parameters
@@ -78,8 +81,10 @@ def main():
 
     client_parser = subparsers.add_parser("client", description="Client",
                                           help="Connect to a given cid and port.")
-    client_parser.add_argument("cid", type=int, help="The remote endpoint CID.")
-    client_parser.add_argument("port", type=int, help="The remote endpoint port.")
+    client_parser.add_argument(
+        "cid", type=int, help="The remote endpoint CID.")
+    client_parser.add_argument(
+        "port", type=int, help="The remote endpoint port.")
     client_parser.add_argument("query", type=str, help="Query to send.")
 
     # Assign handler function
