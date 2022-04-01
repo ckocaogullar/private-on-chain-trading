@@ -69,7 +69,7 @@ class VsockListener:
                 # Call the external URL
                 # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
                 trigger_trade(10, 10)
-                
+
                 while True:
                     if witness_input_complete:
                         print('Sending witness input:', witness_input)
@@ -84,9 +84,11 @@ class VsockListener:
                 proof_params = dict()
                 zkproof = zkproof.split(':')
                 proof_params['a'] = [s.strip() for s in zkproof[0].split()]
-                proof_params['b'] = [s.strip() for s in zkproof[1].split()]
-                proof_params['c'] = [s.strip() for s in zkproof[2].split()]
-                proof_params['inputs'] = [s.strip() for s in zkproof[3].split()]
+                proof_params['b'] = [[s.strip() for s in zkproof[1].split()], [
+                    s.strip() for s in zkproof[2].split()]]
+                proof_params['c'] = [s.strip() for s in zkproof[3].split()]
+                proof_params['inputs'] = [s.strip()
+                                          for s in zkproof[4].split()]
                 print('Proof params received from the host:', proof_params)
                 sign_and_send_tx('trade', proof_params)
 

@@ -27,7 +27,7 @@ def generate_zkproof(enclave_data):
     with open('../../../zokrates-proof/decision-proof/proof.json', 'r') as file:
         raw_proof_data = json.load(file)
         print(raw_proof_data)
-        return ' '.join(raw_proof_data['proof']['a']) + ' : ' + ' '.join(raw_proof_data['proof']['b']) + ' : ' + ' '.join(raw_proof_data['proof']['c']) + ' : ' + ' '.join(raw_proof_data['inputs'])
+        return ' '.join(raw_proof_data['proof']['a']) + ' : ' + ' '.join(raw_proof_data['proof']['b'][0]) + ' : ' + ' '.join(raw_proof_data['proof']['b'][1]) + ' : ' + ' '.join(raw_proof_data['proof']['c']) + ' : ' + ' '.join(raw_proof_data['inputs'])
 
 # To call the client, you have to pass: CID of the enclave, Port for remote server,
 # and Query string that will be processed in the Nitro Enclave. For Example:
