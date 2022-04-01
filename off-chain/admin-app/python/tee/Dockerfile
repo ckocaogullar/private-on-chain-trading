@@ -24,6 +24,7 @@ COPY server.py ./
 COPY traffic_forwarder.py ./
 COPY run.sh ./
 COPY config.py ./
+COPY zokrates_pycrpto ./
 
 RUN chmod +x /app/run.sh
 
