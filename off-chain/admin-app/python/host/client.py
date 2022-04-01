@@ -24,10 +24,10 @@ def generate_zkproof(enclave_data):
     print(output)
 
     # read and return proof
-    with open('../../../zokrates-proofdecision-proof/proof.json', 'r') as file:
+    with open('../../../zokrates-proof/decision-proof/proof.json', 'r') as file:
         raw_proof_data = json.load(file)
         print(raw_proof_data)
-        return raw_proof_data['proof']['a'], raw_proof_data['proof']['b'], raw_proof_data['proof']['c'], raw_proof_data['inputs']
+        return '' + raw_proof_data['proof']['a'] + ' ' + raw_proof_data['proof']['b'] + ' ' + raw_proof_data['proof']['c'] + ' ' + raw_proof_data['inputs']
 
 # To call the client, you have to pass: CID of the enclave, Port for remote server,
 # and Query string that will be processed in the Nitro Enclave. For Example:
@@ -57,7 +57,8 @@ class VsockStream:
         # receiving responce back
         data = self.sock.recv(1024).decode()  # receive response
         print('Received from server: ' + data)  # show in terminal
-        generate_zkproof(data)
+        zkproof = generate_zkproof(data)
+        self.sock.send(zkproof.encode())
         self.sock.close()
 
 

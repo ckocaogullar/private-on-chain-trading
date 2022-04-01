@@ -76,32 +76,16 @@ class VsockListener:
                         # Send back the response
                         from_client.send(str(witness_input).encode())
                         break
-                from_client.close()
-                print("Client call closed")
-            except Exception as ex:
-                print(ex)
 
-    def send_data(self):
-        # Receive data from a remote endpoint
-        while True:
-            try:
-                print("Let's send stuff")
-                (from_client, (remote_cid, remote_port)) = self.sock.accept()
-                print("Connection from " + str(from_client) +
-                      str(remote_cid) + str(remote_port))
+                # Get back the proof
+                zkproof = from_client.recv(1024).decode()
+                print("Proof received: " + zkproof)
 
-                query = from_client.recv(1024).decode()
-                print("Message received: " + query)
-
-                # Call the external URL
-                # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
-                response = trigger_trade(10, 10)
-                print('Sending witness input:', response)
-                # Send back the response
-                from_client.send(str(response).encode())
+                sign_and_send_tx('trade', zkproof.split())
 
                 from_client.close()
                 print("Client call closed")
+
             except Exception as ex:
                 print(ex)
 
@@ -113,7 +97,7 @@ class VsockListener:
 def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
     global witness_input
     global witness_input_complete
-    
+
     print('Deciding on the trade')
     if (current_price > (upper_bollinger_band / 100) * (100 - config.UPPER_BOUND_PERCENTAGE)):
         print("Selling token1")
@@ -180,7 +164,8 @@ def sign_and_send_tx(tx_name, tx_args):
             {'from': config.ACCOUNT, 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
         event_name = 'BollingerIndicators'
     elif tx_name == 'trade':
-        tx = BotContract.functions.trade(tx_args['a'], tx_args['b'], tx_args['c'], tx_args['inputs']).buildTransaction(
+        print('Sending the proof to the smart contract to get it verified')
+        tx = BotContract.functions.trade(tx_args[0], tx_args[1], tx_args[2], tx_args[3]).buildTransaction(
             {'from': config.ACCOUNT, 'nonce': web3.eth.get_transaction_count(config.ACCOUNT)})
         event_name = 'ProofVerified'
 

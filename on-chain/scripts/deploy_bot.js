@@ -23,7 +23,7 @@ const config = {
   }
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
 
   console.log(
     "Deploying contracts with the account:",

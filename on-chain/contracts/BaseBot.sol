@@ -32,10 +32,8 @@ contract BaseBot {
 
     // Uncomment these values for Ropsten network
     // ------------------------------------------------------------------------
-    address buyVerifierAddress = 0xbc12D817Ed67b3e0C11F87E4b9241DC45dE9ed34;
-    address sellVerifierAddress = 0x47c6017175d201fa7cb93574a9F7B23e2355F548;
 
-    address verifierAddress = 0x940E4036Ca25BF60eCA879b711c6619A50d1e1a7;
+    address verifierAddress = 0xE3b1aC162644e351A6aCb2663040d09d75388185;
 
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
