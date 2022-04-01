@@ -33,6 +33,7 @@ web3 = None
 BotContract = None
 
 witness_input = None
+witness_input_complete = False
 
 proof_args = {'currentPrice': None, 'upperBollingerBand': None, 'lowerBollingerBand': None, 'buySellFlag': None, 'boundPercentage': None,
               'currentPrice': None, 'upperBollingerBand': None, 'lowerBollingerBand': None, 'buySellFlag': None, 'boundPercentage': None, 'signatureArgs': None}
@@ -67,11 +68,14 @@ class VsockListener:
 
                 # Call the external URL
                 # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
-                response = trigger_trade(10, 10)
-                print('Sending witness input:', response)
-                # Send back the response
-                from_client.send(str(response).encode())
-
+                trigger_trade(10, 10)
+                
+                while True:
+                    if witness_input_complete:
+                        print('Sending witness input:', witness_input)
+                        # Send back the response
+                        from_client.send(str(witness_input).encode())
+                        break
                 from_client.close()
                 print("Client call closed")
             except Exception as ex:
@@ -108,6 +112,8 @@ class VsockListener:
 
 def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
     global witness_input
+    global witness_input_complete
+    
     print('Deciding on the trade')
     if (current_price > (upper_bollinger_band / 100) * (100 - config.UPPER_BOUND_PERCENTAGE)):
         print("Selling token1")
@@ -120,6 +126,7 @@ def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
             witness_input += str(proof_args[key]) + ' '
         print('witness_input')
         print(witness_input)
+        witness_input_complete = True
 
     elif (current_price <= (lower_bollinger_band / 100) * (100 - config.LOWER_BOUND_PERCENTAGE)):
         print("Buying token1")
@@ -132,6 +139,7 @@ def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
             witness_input += str(proof_args[key]) + ' '
         print('witness_input')
         print(witness_input)
+        witness_input_complete = True
 
 
 # Keeps track of the emitted events, running a loop on a separete thread in the background and takes action based on the event
