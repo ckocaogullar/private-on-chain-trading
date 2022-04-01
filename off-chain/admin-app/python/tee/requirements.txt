@@ -4,6 +4,7 @@ async-timeout==4.0.2
 attrs==21.4.0
 base58==2.1.1
 bitarray==1.2.2
+bitstring==3.1.5
 certifi==2021.10.8
 cffi==1.15.0
 charset-normalizer==2.0.12
@@ -40,5 +41,3 @@ varint==1.0.2
 web3==5.28.0
 websockets==9.1
 yarl==1.7.2
-bitstring==3.1.5
-

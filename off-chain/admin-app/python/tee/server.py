@@ -28,6 +28,8 @@ tProofGenStarted = None
 web3 = None
 BotContract = None
 
+witness_input = None
+
 proof_args = {'currentPrice': None, 'upperBollingerBand': None, 'lowerBollingerBand': None, 'buySellFlag': None, 'boundPercentage': None,
               'currentPrice': None, 'upperBollingerBand': None, 'lowerBollingerBand': None, 'buySellFlag': None, 'boundPercentage': None, 'signatureArgs': None}
 
@@ -61,10 +63,10 @@ class VsockListener:
 
                 # Call the external URL
                 # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
-                response = trigger_trade(10, 10)
+                trigger_trade(10, 10)
 
                 # Send back the response
-                from_client.send(str(response).encode())
+                from_client.send(str(witness_input).encode())
 
                 from_client.close()
                 print("Client call closed")
@@ -101,6 +103,7 @@ class VsockListener:
 
 
 def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
+    global witness_input
     print('Deciding on the trade')
     if (current_price > (upper_bollinger_band / 100) * (100 - config.UPPER_BOUND_PERCENTAGE)):
         print("Selling token1")
