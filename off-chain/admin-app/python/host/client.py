@@ -32,7 +32,7 @@ def generate_zkproof(signature, current_price, upper_bollinger_band, lower_bolli
 # $ python3 client.py client 19 5005 "us-east-1"
 class VsockStream:
     # Client
-    def __init__(self, conn_timeout=30):
+    def __init__(self, conn_timeout=None):
         self.conn_timeout = conn_timeout
 
 
