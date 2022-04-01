@@ -125,7 +125,7 @@ def decide_trade(current_price, upper_bollinger_band, lower_bollinger_band):
         print("Buying token1")
         proof_args['boundPercentage'] = lowerBoundPercentage
         proof_args['buySellFlag'] = 1
-        # sign(proof_args['buySellFlag'])
+        sign(proof_args['buySellFlag'])
         print(proof_args)
         witness_input = ''
         for key in proof_args:

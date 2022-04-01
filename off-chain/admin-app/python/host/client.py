@@ -36,7 +36,7 @@ def generate_zkproof(enclave_data):
 
 class VsockStream:
     # Client
-    def __init__(self, conn_timeout=None):
+    def __init__(self, conn_timeout=3000):
         self.conn_timeout = conn_timeout
 
     def connect(self, endpoint):
