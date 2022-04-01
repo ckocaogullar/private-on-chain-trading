@@ -15,7 +15,7 @@ def generate_zkproof(enclave_data):
     print(output)
     # execute the program
     output = subprocess.run(['zokrates', 'compute-witness', '-a', enclave_data],
-                            capture_output=True, cwd='../../../zokrates-proof/pycrypto')
+                            capture_output=True, cwd='../../../zokrates-proof/pycrypto', shell=True)
     print(output)
     # generate a proof of computation
     output = subprocess.run(['zokrates', 'generate-proof'],
