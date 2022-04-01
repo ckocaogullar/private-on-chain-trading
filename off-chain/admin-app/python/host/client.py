@@ -10,10 +10,6 @@ import json
 
 
 def generate_zkproof(enclave_data):
-    # go to the proof directory
-    output = subprocess.run(
-        ['export', 'PATH=$PATH:/home/ec2-user/.zokrates/bin'], capture_output=True, shell=True)
-    print(output)
     # execute the program
     output = subprocess.run(['zokrates', 'compute-witness', '-a', enclave_data],
                             capture_output=True, cwd='../../../zokrates-proof/pycrypto')
