@@ -7,8 +7,12 @@ from threading import Thread
 import time
 import sys
 import hashlib
-from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
-from zokrates_pycrypto.field import FQ
+
+try:
+    from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
+    from zokrates_pycrypto.field import FQ
+except Exception as e:
+    print(e)
 
 try:
     from web3 import Web3
