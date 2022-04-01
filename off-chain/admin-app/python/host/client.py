@@ -16,15 +16,15 @@ def generate_zkproof(enclave_data):
     print(output)
     # execute the program
     output = subprocess.run(['zokrates', 'compute-witness', '-a', enclave_data],
-                            capture_output=True, cwd='../../zokrates-proof/decision-proof')
+                            capture_output=True, cwd='../../../zokrates-proof/pycrypto')
     print(output)
     # generate a proof of computation
     output = subprocess.run(['zokrates', 'generate-proof'],
-                            capture_output=True, cwd='../../zokrates-proof/decision-proof')
+                            capture_output=True, cwd='../../../zokrates-proof/pycrypto')
     print(output)
 
     # read and return proof
-    with open('../../zokrates-proof/decision-proof/proof.json', 'r') as file:
+    with open('../../../zokrates-proof/pycrypto/proof.json', 'r') as file:
         raw_proof_data = json.load(file)
         print(raw_proof_data)
         return raw_proof_data['proof']['a'], raw_proof_data['proof']['b'], raw_proof_data['proof']['c'], raw_proof_data['inputs']
