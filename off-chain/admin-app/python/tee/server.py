@@ -93,7 +93,7 @@ class VsockListener:
                 # Call the external URL
                 # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
                 response = trigger_trade(10, 10)
-
+                print('Sending witness input:', response)
                 # Send back the response
                 from_client.send(str(response).encode())
 
@@ -198,6 +198,7 @@ def trigger_trade(num_of_periods, period_length):
 
     sign_and_send_tx('calculateIndicators', {
                      'num_of_periods': num_of_periods, 'period_length': period_length})
+    return witness_input
 
 
 ''' Crypto methods '''
@@ -205,7 +206,8 @@ def trigger_trade(num_of_periods, period_length):
 
 
 def get_private_key():
-    key = FQ(1997011358982923168928344992199991480689546837621580239342656433234255379025)
+    key = FQ(
+        1997011358982923168928344992199991480689546837621580239342656433234255379025)
     private_key = PrivateKey(key)
     return private_key
 
@@ -215,11 +217,13 @@ def get_public_key():
     public_key = PublicKey.from_private(private_key)
     return public_key
 
+
 def load_key(filename):
     with open(filename, 'rb') as pem_in:
         fe = pem_in.read()
     private_key = PrivateKey(fe)
     return private_key
+
 
 def save_key(pk, filename):
     # pem = pk.private_bytes(
@@ -230,6 +234,7 @@ def save_key(pk, filename):
 
     with open(filename, 'wb') as file:
         file.write(str.encode(str(int(pk.fe))))
+
 
 def sign(raw_msg):
     raw_msg = str(raw_msg)
@@ -285,7 +290,6 @@ def main():
     # is_verified = pk.verify(sig, msg)
     # print(is_verified)
 
-
     parser = argparse.ArgumentParser(prog='vsock-sample')
     parser.add_argument("--version", action="version",
                         help="Prints version information.",
@@ -304,7 +308,6 @@ def main():
 
     args = parser.parse_args()
     args.func(args)
-
 
 
 if __name__ == "__main__":
