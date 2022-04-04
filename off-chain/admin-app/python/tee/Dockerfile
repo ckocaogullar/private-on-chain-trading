@@ -20,7 +20,7 @@ RUN node --version
 # RUN npm config set python /opt/venv/bin/python3
 
 WORKDIR /app
-RUN git --version
+RUN which git
 RUN npm cache clean --force
 RUN rm -rf node_modules package-lock.json
 
