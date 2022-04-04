@@ -18,9 +18,10 @@ RUN yum install python3-devel  -y
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
 RUN node --version
 # RUN npm config set python /opt/venv/bin/python3
-# RUN npm cache clean --force
 
 WORKDIR /app
+# RUN npm cache clean --force
+# RUN rm -rf node_modules
 
 COPY requirements.txt .
 
@@ -32,8 +33,8 @@ COPY traffic_forwarder.py ./
 COPY run.sh ./
 COPY config.py ./
 
-COPY index.js .
-COPY package.json .
+COPY index.js ./
+COPY package.json ./
 
 # RUN chmod +x /app/run.sh
 
