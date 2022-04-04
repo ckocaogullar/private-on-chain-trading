@@ -20,8 +20,8 @@ RUN node --version
 # RUN npm config set python /opt/venv/bin/python3
 
 WORKDIR /app
-# RUN npm cache clean --force
-# RUN rm -rf node_modules
+RUN npm cache clean --force
+RUN rm -rf node_modules
 
 COPY requirements.txt .
 
