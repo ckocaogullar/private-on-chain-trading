@@ -15,7 +15,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Install python for running the server and net-tools for modifying network config
 RUN yum -y install gcc
 RUN yum install python3-devel  -y
-RUN yum install nodejs14
+RUN curl -fsSL https://rpm.nodesource.com/setup_17.x | bash -
 
 WORKDIR /app
 
