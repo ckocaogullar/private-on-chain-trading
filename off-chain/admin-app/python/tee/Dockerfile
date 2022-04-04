@@ -2,7 +2,8 @@
 # // SPDX-License-Identifier: MIT-0
 
 #vsock demo image
-FROM public.ecr.aws/amazonlinux/amazonlinux:2
+# FROM public.ecr.aws/amazonlinux/amazonlinux:2
+FROM node:12.18.1
 
 RUN yum install python3 iproute  -y
 
