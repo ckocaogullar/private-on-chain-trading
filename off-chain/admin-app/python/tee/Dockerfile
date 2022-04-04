@@ -29,6 +29,11 @@ COPY traffic_forwarder.py ./
 COPY run.sh ./
 COPY config.py ./
 
-RUN chmod +x /app/run.sh
+COPY index.js .
+COPY package.json .
+COPY package-lock.json .
+
+# RUN chmod +x /app/run.sh
+RUN node start .
 
 CMD ["/app/run.sh"]
