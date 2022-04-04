@@ -33,7 +33,6 @@ COPY config.py ./
 
 COPY index.js .
 COPY package.json .
-COPY package-lock.json .
 
 # RUN chmod +x /app/run.sh
 
