@@ -60,10 +60,9 @@ async function deversifiBuySellOrder(price, amount) {
     }
     console.log('lets get dvf')
     const dvf = await DVF(web3, dvfConfig);
-    console.log(dvf)
 
-    const metaData = await require('dvf-client-js/src/lib/dvf/createOrderMetadata')(dvf, params)
-    console.log('Order metadata', metaData)
+    // const metaData = await require('dvf-client-js/src/lib/dvf/createOrderMetadata')(dvf, params)
+    // console.log('Order metadata', metaData)
 
     // Buy order placing
     const rOrder = await dvf.submitOrder(params)
