@@ -18,13 +18,13 @@ RUN yum install python3-devel  -y
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
 RUN node --version
 # RUN npm config set python /opt/venv/bin/python3
-RUN npm cache clean --force
+# RUN npm cache clean --force
 
 WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+# RUN pip install -r requirements.txt
 
 COPY zokrates_pycrypto ./zokrates_pycrypto
 COPY server.py ./
