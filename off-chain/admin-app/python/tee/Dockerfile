@@ -16,7 +16,8 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN yum -y install gcc
 RUN yum install python3-devel  -y
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
-
+RUN node --version
+RUN npm config set python /opt/venv/bin/python3
 
 WORKDIR /app
 
@@ -37,6 +38,7 @@ COPY package-lock.json .
 # RUN chmod +x /app/run.sh
 
 RUN npm install
+RUN npm --version
 RUN node index.js
 
 CMD ["/app/run.sh"]
