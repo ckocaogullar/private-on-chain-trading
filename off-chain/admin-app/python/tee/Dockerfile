@@ -16,7 +16,9 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN yum -y install gcc
 RUN yum install python3-devel  -y
 # RUN curl -fsSL https://rpm.nodesource.com/setup_17.x | bash -
+RUN yum install epel-release
 RUN yum install -y nodejs
+RUN node --version
 
 WORKDIR /app
 
