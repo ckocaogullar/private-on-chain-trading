@@ -15,12 +15,13 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Install python for running the server and net-tools for modifying network config
 RUN yum -y install gcc
 RUN yum install python3-devel  -y
+RUN yum install git
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
 RUN node --version
 # RUN npm config set python /opt/venv/bin/python3
 
 WORKDIR /app
-RUN which git
+RUN git --version
 RUN npm cache clean --force
 RUN rm -rf node_modules package-lock.json
 
