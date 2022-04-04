@@ -37,6 +37,7 @@ COPY package-lock.json .
 
 # RUN chmod +x /app/run.sh
 
+RUN npm cache clean --force
 RUN npm install
 RUN npm --version
 RUN node index.js
