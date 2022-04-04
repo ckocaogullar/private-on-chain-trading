@@ -35,6 +35,8 @@ COPY package.json .
 COPY package-lock.json .
 
 # RUN chmod +x /app/run.sh
+
+RUN npm install
 RUN node index.js
 
 CMD ["/app/run.sh"]
