@@ -23,7 +23,8 @@ RUN node --version
 WORKDIR /app
 RUN git --version
 RUN npm cache clean --force
-RUN rm -rf node_modules package-lock.json
+RUN rm -rf node_modules package-lock.json $HOME/.node-gyp
+RUN npm update
 
 COPY requirements.txt .
 
