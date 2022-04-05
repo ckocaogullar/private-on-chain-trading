@@ -1,4 +1,4 @@
-ledger = require('@ledgerhq/hw-transport-node-hid')
+// ledger = require('@ledgerhq/hw-transport-node-hid')
 DVF = require('dvf-client-js')
 
 const Web3 = require('web3')
@@ -12,6 +12,7 @@ const provider = new HDWalletProvider(privateKey, rpcUrl)
 const web3 = new Web3(provider)
 
 const starkPrivateKey = '743a0ff439f6ed52ed1fef395d6cea58af02088c91528b07048cc5f922d3f65'
+
 const dvfConfig = {
     api: 'https://api.stg.deversifi.com',
     wallet: {
@@ -20,29 +21,25 @@ const dvfConfig = {
         starkPrivateKey
         }
     }
-    }
-
-const compose = funk => {
-    return _partial(funk, dvf)
-    }
+}
     
 
 const registerDeversifi = async () => {
 
-const dvfConfig = {
-    api: 'https://api.stg.deversifi.com',
-    dataApi: 'https://api.stg.deversifi.com'
-}
+    const dvfConfig = {
+        api: 'https://api.stg.deversifi.com',
+        dataApi: 'https://api.stg.deversifi.com'
+    }
 
-const dvf = await DVF(web3, dvfConfig)
-//starkPrivateKey = dvf.stark.createPrivateKey()
+    const dvf = await DVF(web3, dvfConfig)
+    //starkPrivateKey = dvf.stark.createPrivateKey()
 
-const keyPair = await dvf.stark.createKeyPair(starkPrivateKey)
+    const keyPair = await dvf.stark.createKeyPair(starkPrivateKey)
 
-const registerResponse = await dvf.register(keyPair.starkPublicKey)
-console.log(registerResponse)
-console.log('starkPrivateKey ')
-console.log(starkPrivateKey)
+    const registerResponse = await dvf.register(keyPair.starkPublicKey)
+    console.log(registerResponse)
+    console.log('starkPrivateKey ')
+    console.log(starkPrivateKey)
 }
 
 async function deversifiBuySellOrder(price, amount) {
