@@ -74,3 +74,14 @@ if (myArgs[0] == 'register'){
     deversifiBuySellOrder(parseInt(myArgs[0]), parseFloat(myArgs[1]))
 }
 
+
+// "dependencies": {
+//     "@ledgerhq/hw-transport-node-hid": "^6.24.1",
+//     "@truffle/hdwallet-provider": "^2.0.4",
+//     "dvf-client-js": "^3.1.4",
+//     "ledgerhq": "0.0.1-security",
+//     "net": "^1.0.2",
+//     "tls": "0.0.1",
+//     "truffle": "^5.5.5",
+//     "zlib": "^1.0.5"
+//   }

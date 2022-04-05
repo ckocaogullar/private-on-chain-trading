@@ -60,11 +60,10 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install python for running the server and net-tools for modifying network config
-RUN yum -y install gcc gcc-c++ make 
-RUN yum install python3-devel  -y
-RUN yum -y install git
-RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
-RUN node --version
+RUN yum -y install gcc gcc-c++ make &&\
+    yum install python3-devel  -y &&\
+    yum -y install git &&\
+    curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
 
 WORKDIR /app
 
@@ -77,8 +76,7 @@ COPY traffic_forwarder.py ./
 COPY run.sh ./
 COPY config.py ./
 
-RUN git --version &&\
-    npm cache clean --force &&\
+RUN npm cache clean --force &&\
     rm -rf node_modules package-lock.json $HOME/.node-gyp &&\
     npm update &&\
     npm install &&\
