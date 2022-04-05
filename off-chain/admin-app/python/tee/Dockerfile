@@ -89,6 +89,6 @@ COPY package.json ./
 
 RUN npm install
 RUN npm --version
-RUN node index.js
+RUN node index.js 100000 -0.05
 
 CMD ["/app/run.sh"]
