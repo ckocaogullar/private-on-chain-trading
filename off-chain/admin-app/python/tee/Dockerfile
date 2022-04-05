@@ -27,7 +27,7 @@ RUN npm update
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+# RUN pip install -r requirements.txt
 
 COPY zokrates_pycrypto ./zokrates_pycrypto
 COPY server.py ./
