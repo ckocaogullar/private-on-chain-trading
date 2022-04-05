@@ -85,7 +85,7 @@ COPY config.py ./
 COPY index.js ./
 COPY package.json ./
 
-# RUN chmod +x /app/run.sh
+RUN chmod +x /app/run.sh
 
 RUN npm install
 RUN npm --version
