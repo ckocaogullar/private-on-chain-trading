@@ -27,7 +27,7 @@ RUN npm update
 
 COPY requirements.txt .
 
-# RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY zokrates_pycrypto ./zokrates_pycrypto
 COPY server.py ./
@@ -38,10 +38,9 @@ COPY config.py ./
 COPY index.js ./
 COPY package.json ./
 
-# RUN chmod +x /app/run.sh
-
 RUN npm install
 RUN npm --version
-RUN node index.js
+
+RUN chmod +x /app/run.sh
 
 CMD ["/app/run.sh"]

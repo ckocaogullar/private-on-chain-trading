@@ -69,9 +69,11 @@ async function deversifiBuySellOrder(price, amount) {
     console.info('Order receipt', JSON.stringify(rOrder))
 }
 
-function helloWorld() {
-    console.log('Hello world!!!!')
+
+const myArgs = process.argv.slice(2);
+if (myArgs[0] == 'register'){
+    registerDeversifi()
+} else {
+    deversifiBuySellOrder(parseInt(myArgs[0]), parseFloat(myArgs[1]))
 }
 
-// registerDeversifi()
-deversifiBuySellOrder(100000, -0.05);

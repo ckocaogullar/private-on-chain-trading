@@ -7,6 +7,7 @@ from threading import Thread
 import time
 import sys
 import hashlib
+import subprocess
 
 try:
     from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
@@ -34,6 +35,9 @@ BotContract = None
 
 witness_input = None
 witness_input_complete = False
+
+tradePrice = 100000
+tradeAmount = -0.05
 
 proof_args = {'currentPrice': None, 'upperBollingerBand': None, 'lowerBollingerBand': None, 'buySellFlag': None, 'boundPercentage': None,
               'currentPrice': None, 'upperBollingerBand': None, 'lowerBollingerBand': None, 'buySellFlag': None, 'boundPercentage': None, 'signatureArgs': None}
@@ -151,6 +155,9 @@ def event_log_loop(tx_hash, event_name, poll_period):
             elif event_name == 'ProofVerified':
                 rich_logs = BotContract.events.ProofVerified().processReceipt(tx_receipt)
                 print('Rich logs for ProofVerified: ', rich_logs)
+                output = subprocess.run(
+                    ['node', 'index.js', tradePrice, tradeAmount], capture_output=True)
+                print(output)
                 break
         except:
             time.sleep(poll_period)
@@ -229,12 +236,6 @@ def load_key(filename):
 
 
 def save_key(pk, filename):
-    # pem = pk.private_bytes(
-    #     encoding=serialization.Encoding.PEM,
-    #     format=serialization.PrivateFormat.PKCS8,
-    #     encryption_algorithm=serialization.NoEncryption()
-    # )
-
     with open(filename, 'wb') as file:
         file.write(str.encode(str(int(pk.fe))))
 
