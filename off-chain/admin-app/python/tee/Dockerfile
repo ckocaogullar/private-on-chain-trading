@@ -89,6 +89,6 @@ RUN chmod +x /app/run.sh
 
 RUN npm install
 RUN npm --version
-RUN node index.js 100000 -0.05
+# RUN node index.js 100000 -0.05
 
 CMD ["/app/run.sh"]
