@@ -50,20 +50,14 @@
 
 #vsock demo image
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
-# FROM node:12.18.1
 
-
-RUN yum install python3 iproute  -y
+# Install python for running the server and net-tools for modifying network config
+RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - &&\
+    yum -y install python3 iproute gcc gcc-c++ make python3-devel git nodejs 
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-# Install python for running the server and net-tools for modifying network config
-RUN yum -y install gcc gcc-c++ make &&\
-    yum install python3-devel  -y &&\
-    yum -y install git &&\
-    curl -fsSL https://rpm.nodesource.com/setup_16.x | bash - && yum -y install nodejs
 
 WORKDIR /app
 
