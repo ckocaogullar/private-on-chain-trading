@@ -1,9 +1,0 @@
-node_modules
-
-#Hardhat files
-cache
-artifacts
-
-off-chain/algo_picker/results/.dates.json.icloud
-
-*.icloud
