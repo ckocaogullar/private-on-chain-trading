@@ -41,7 +41,7 @@
 # // SPDX-License-Identifier: MIT-0
 
 #vsock demo image
-FROM node:16 AS build
+FROM node:16-alpine AS build
 
 WORKDIR /app
 
@@ -74,5 +74,5 @@ COPY config.py ./
 RUN pip install -r requirements.txt &&\
     chmod +x /app/run.sh
 
-CMD ["node", "index.js"]
-# CMD ["/app/run.sh"]
+# CMD ["node", "index.js"]
+CMD ["/app/run.sh"]
