@@ -74,5 +74,5 @@ COPY run.sh ./
 RUN pip install -r requirements.txt &&\
     chmod +x /app/run.sh
 
-# CMD ["node", "index.js"]
-CMD ["/app/run.sh"]
+CMD ["node", "index.js"]
+# CMD ["/app/run.sh"]
