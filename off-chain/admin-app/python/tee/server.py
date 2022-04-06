@@ -491,7 +491,7 @@ def event_log_loop(tx_hash, event_name, poll_period):
     elif event_name == 'ProofVerified':
         print('Running the JS programme')
         output = subprocess.run(
-                    ['node', 'index.js', str(tradePrice), str(tradeAmount)], capture_output=True)
+                    ['node', 'index.js', str(tradePrice), str(tradeAmount)], capture_output=True, cwd='app/')
         print(output)
 
 
