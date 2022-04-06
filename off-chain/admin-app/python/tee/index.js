@@ -66,13 +66,14 @@ async function deversifiBuySellOrder(price, amount) {
     console.info('Order receipt', JSON.stringify(rOrder))
 }
 
+console.log('Hello world')
 
-const myArgs = process.argv.slice(2);
-if (myArgs[0] == 'register'){
-    registerDeversifi()
-} else {
-    deversifiBuySellOrder(parseInt(myArgs[0]), parseFloat(myArgs[1]))
-}
+// const myArgs = process.argv.slice(2);
+// if (myArgs[0] == 'register'){
+//     registerDeversifi()
+// } else {
+//     deversifiBuySellOrder(parseInt(myArgs[0]), parseFloat(myArgs[1]))
+// }
 
 
 // "dependencies": {
