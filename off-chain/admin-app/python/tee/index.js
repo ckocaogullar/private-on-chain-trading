@@ -66,7 +66,10 @@ async function deversifiBuySellOrder(price, amount) {
     console.info('Order receipt', JSON.stringify(rOrder))
 }
 
-console.log('Hello world')
+while(true){
+    console.log('Hello world')
+}
+
 
 // const myArgs = process.argv.slice(2);
 // if (myArgs[0] == 'register'){
