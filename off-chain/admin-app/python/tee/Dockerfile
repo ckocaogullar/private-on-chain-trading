@@ -69,7 +69,7 @@ COPY zokrates_pycrypto ./zokrates_pycrypto
 COPY server.py ./
 COPY traffic_forwarder.py ./
 COPY run.sh ./
-COPY config.py ./
+# COPY config.py ./
 
 RUN pip install -r requirements.txt &&\
     chmod +x /app/run.sh
