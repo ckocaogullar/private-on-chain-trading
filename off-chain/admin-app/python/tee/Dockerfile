@@ -60,6 +60,8 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+COPY --from=build /app /app
+
 WORKDIR /app
 
 COPY requirements.txt ./
@@ -72,6 +74,6 @@ COPY config.py ./
 RUN pip install -r requirements.txt &&\
     chmod +x /app/run.sh
 
-COPY --from=build /app /app
+
 
 CMD ["/app/run.sh"]
