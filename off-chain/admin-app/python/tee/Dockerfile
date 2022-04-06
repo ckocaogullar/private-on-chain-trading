@@ -45,7 +45,6 @@ FROM node:16 AS build
 
 WORKDIR /app
 
-COPY index.js ./
 COPY package.json ./
 
 RUN npm install
@@ -69,6 +68,7 @@ COPY zokrates_pycrypto ./zokrates_pycrypto
 COPY server.py ./
 COPY traffic_forwarder.py ./
 COPY run.sh ./
+COPY index.js ./
 # COPY config.py ./
 
 RUN pip install -r requirements.txt &&\
