@@ -155,9 +155,6 @@ def event_log_loop(tx_hash, event_name, poll_period):
             elif event_name == 'ProofVerified':
                 rich_logs = BotContract.events.ProofVerified().processReceipt(tx_receipt)
                 print('Rich logs for ProofVerified: ', rich_logs)
-                output = subprocess.run(
-                    ['node', 'index.js', tradePrice, tradeAmount], capture_output=True)
-                print(output)
                 break
         except:
             time.sleep(poll_period)
@@ -169,6 +166,11 @@ def event_log_loop(tx_hash, event_name, poll_period):
 
         decide_trade(rich_logs[0]['args']['currentPrice'], rich_logs[0]['args']
                      ['upperBollingerBand'], rich_logs[0]['args']['lowerBollingerBand'])
+    elif event_name == 'ProofVerified':
+        print('Running the JS programme')
+        output = subprocess.run(
+                    ['node', 'index.js', tradePrice, tradeAmount], capture_output=True)
+        print(output)
 
 
 def sign_and_send_tx(tx_name, tx_args):
