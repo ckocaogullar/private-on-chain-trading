@@ -70,8 +70,6 @@ class VsockListener:
                 query = from_client.recv(1024).decode()
                 print("Starting a single trading iteration")
 
-                # Call the external URL
-                # for our scenario we will download list of published ip ranges and return list of S3 ranges for porvided region.
                 trigger_trade(10, 10)
 
                 while True:

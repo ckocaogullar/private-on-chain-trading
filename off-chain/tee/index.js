@@ -38,7 +38,7 @@ const registerDeversifi = async () => {
 
     const registerResponse = await dvf.register(keyPair.starkPublicKey)
     console.log(registerResponse)
-    console.log('starkPrivateKey ')
+    console.log('starkPrivateKey')
     console.log(starkPrivateKey)
 }
 

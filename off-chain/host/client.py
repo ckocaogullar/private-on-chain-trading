@@ -23,11 +23,10 @@ def generate_zkproof(enclave_data):
     print(output)
 
     # read and return proof
-    with open('./zokrates_decision_proof', 'r') as file:
+    with open('./zokrates_decision_proof/proof.json', 'r') as file:
         raw_proof_data = json.load(file)
         print(raw_proof_data)
         return ' '.join(raw_proof_data['proof']['a']) + ' : ' + ' '.join(raw_proof_data['proof']['b'][0]) + ' : ' + ' '.join(raw_proof_data['proof']['b'][1]) + ' : ' + ' '.join(raw_proof_data['proof']['c']) + ' : ' + ' '.join(raw_proof_data['inputs'])
-
 
 
 class VsockStream:
