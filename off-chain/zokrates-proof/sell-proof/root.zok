@@ -1,3 +1,0 @@
-
-def main(field currentPrice, field upperBollingerBand, private field upperBoundPercentage) -> bool:
-  return currentPrice > (upperBollingerBand / 100) * (100 - upperBoundPercentage)

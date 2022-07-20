@@ -14,17 +14,13 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN yum -y install gcc
 RUN yum install python3-devel  -y
 
+# Install Zokrates and set the path
+RUN curl -LSfs get.zokrat.es | sh
+RUN export PATH=$PATH:/home/ec2-user/.zokrates/bin
+
 WORKDIR /app
 
-COPY requirements.txt .
-
-RUN pip install -r requirements.txt
-
-COPY server.py ./
-COPY traffic_forwarder.py ./
-COPY run.sh ./
-COPY config.py ./
-COPY zokrates_pycrpto ./
+COPY zokrates_decision_proof ./
 
 RUN chmod +x /app/run.sh
 

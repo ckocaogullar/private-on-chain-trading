@@ -4,7 +4,6 @@
 #!/usr/local/bin/env python3
 import argparse
 import socket
-from sqlite3 import enable_callback_tracebacks
 import sys
 import subprocess
 import json
@@ -12,26 +11,23 @@ import json
 
 def generate_zkproof(enclave_data):
     output = subprocess.run(
-        ['zokrates'], capture_output=True, cwd='../../../zokrates-proof/decision-proof')
+        ['zokrates'], capture_output=True, cwd='./zokrates_decision_proof')
     print(output)
     # execute the program
     output = subprocess.run(['zokrates', 'compute-witness', '-a', enclave_data],
-                            capture_output=True, cwd='../../../zokrates-proof/decision-proof')
+                            capture_output=True, cwd='./zokrates_decision_proof')
     print(output)
     # generate a proof of computation
     output = subprocess.run(['zokrates', 'generate-proof'],
-                            capture_output=True, cwd='../../../zokrates-proof/decision-proof')
+                            capture_output=True, cwd='./zokrates_decision_proof')
     print(output)
 
     # read and return proof
-    with open('../../../zokrates-proof/decision-proof/proof.json', 'r') as file:
+    with open('./zokrates_decision_proof', 'r') as file:
         raw_proof_data = json.load(file)
         print(raw_proof_data)
         return ' '.join(raw_proof_data['proof']['a']) + ' : ' + ' '.join(raw_proof_data['proof']['b'][0]) + ' : ' + ' '.join(raw_proof_data['proof']['b'][1]) + ' : ' + ' '.join(raw_proof_data['proof']['c']) + ' : ' + ' '.join(raw_proof_data['inputs'])
 
-# To call the client, you have to pass: CID of the enclave, Port for remote server,
-# and Query string that will be processed in the Nitro Enclave. For Example:
-# $ python3 client.py client 19 5005 "us-east-1"
 
 
 class VsockStream:
@@ -63,13 +59,13 @@ class VsockStream:
 
 
 def client_handler(args):
-    # creat socket tream to the Nitro Enclave
+    # create socket stream to the Nitro Enclave
     client = VsockStream()
     endpoint = (args.cid, args.port)
     print("Endpoint Arguments ", str(args.cid), str(args.port))
     client.connect(endpoint)
-    # Send provided query and handle the response
-    client.send_data(args.query)
+    # Trigger the TEE by sending a dummy input
+    client.send_data("Start enclave process.")
 
 
 def main():
@@ -86,13 +82,12 @@ def main():
         "cid", type=int, help="The remote endpoint CID.")
     client_parser.add_argument(
         "port", type=int, help="The remote endpoint port.")
-    client_parser.add_argument("query", type=str, help="Query to send.")
 
     # Assign handler function
     client_parser.set_defaults(func=client_handler)
 
     # Argument count validation
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 2:
         parser.print_usage()
         sys.exit(1)
 
