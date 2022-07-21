@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Download Zokrates and set the path.
-curl -LSfs [get.zokrat.es](http://get.zokrat.es/) | sh
+curl -LSfs get.zokrat.es | sh
 export PATH=$PATH:/home/ec2-user/.zokrates/bin
 
 # To call the client, you have to pass: CID of the enclave, Port for remote server,
