@@ -19,21 +19,12 @@ contract BaseBot {
 
     address admin;
 
-    // Uncomment these values for the Mainnet forking
     // ------------------------------------------------------------------------
-    // address buyVerifierAddress = 0x9D918F441B5c099CEFDf7CA6cfaBb478ce030fB1;
-    // address sellVerifierAddress = 0xd612d11d4396aC06efF39600C294A10E6D8305A5;
+    // Ropsten address
+    // address verifierAddress = 0xE3b1aC162644e351A6aCb2663040d09d75388185;
 
-    // ISwapRouter public constant uniswapRouter =
-    //     ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    // IQuoter public constant quoter =
-    //     IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
-    // ------------------------------------------------------------------------
-
-    // Uncomment these values for Ropsten network
-    // ------------------------------------------------------------------------
-
-    address verifierAddress = 0xE3b1aC162644e351A6aCb2663040d09d75388185;
+    // Goerli address
+    address verifierAddress = 0xa9c4C20B03dB5FE24438107FbbB18F380B741895;
 
     ISwapRouter public constant uniswapRouter =
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -64,8 +55,6 @@ contract BaseBot {
 
     event TestEvent(uint24 test);
 
-    // event UserSubscribed(address subscriberAddress);
-    // event SubscriptionConfirmed(address userAddress);
     event ProofVerified(bool verified);
 
     event BollingerIndicators(
@@ -73,13 +62,6 @@ contract BaseBot {
         uint256 lowerBollingerBand,
         uint256 currentPrice
     );
-
-    // struct Subscriber {
-    //     uint256 amount;
-    //     SubscriptionStatus subscriptionStatus;
-    // }
-
-    // mapping(address => Subscriber) subscribers;
 
     constructor(
         address _uniswapV3Factory,
@@ -239,7 +221,8 @@ contract BaseBot {
                 PoolAddress.getPoolKey(token0, token1, defaultFee)
             );
         }
-        int256 twapTick = OracleLibrary.consult(poolAddress, 800);
+        int256 twapTick;
+        (twapTick, ) = OracleLibrary.consult(poolAddress, 800);
 
         currentPrice = OracleLibrary.getQuoteAtTick(
             int24(twapTick), // can assume safe being result from consult()

@@ -9,8 +9,8 @@ const config = {
     // Values for ropsten
     //
     uniswapV3Factory: '0x1f98431c8ad98523631ae4a59f267346ea31f984',
-    token0: '0xc778417e063141139fce010982780140aa0cd5ab', // WETH
-    token1: '0x0D9C8723B343A8368BebE0B5E89273fF8D712e3C', // USDC
+    token0: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6', // WETH
+    token1: '0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C', // USDC
     //Values for the Mainnet forking
     //
     // uniswapV3Factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
