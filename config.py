@@ -1,5 +1,8 @@
 """Change the CONTRACT_ADDRESS and ABI appropriately, as described in the README"""
 
+# Alchemy Goerli URL
+URL = "https://eth-goerli.g.alchemy.com/v2/wBUefIW8WnzgYKNZFTchNYgZcuE7pfC2"
+
 # Alchemy Ropsten URL
 URL = "https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"
 

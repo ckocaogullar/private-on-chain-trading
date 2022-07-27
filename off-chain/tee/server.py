@@ -21,8 +21,11 @@ try:
 except Exception as e:
     print(e)
 
+# Alchemy Goerli URL
+URL = "https://eth-goerli.g.alchemy.com/v2/wBUefIW8WnzgYKNZFTchNYgZcuE7pfC2"
+
 # Alchemy Ropsten URL
-URL = "https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"
+# URL = "https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"
 
 # Hardhat node URL
 # URL = 'http://127.0.0.1:8545/'

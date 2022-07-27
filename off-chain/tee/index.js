@@ -6,7 +6,8 @@ const HDWalletProvider = require('@truffle/hdwallet-provider')
 
 
 const privateKey = 'bc6d600f6bf2a5ad83377dd8743e5fe30b14064ea8e082f3a83ee704cca0cfc0'
-const rpcUrl = "https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"
+const rpcUrl = "https://eth-goerli.g.alchemy.com/v2/wBUefIW8WnzgYKNZFTchNYgZcuE7pfC2"
+// const rpcUrl = "https://eth-ropsten.alchemyapi.io/v2/fBCbSZh46WyftFgzBU-a8_tIgCCxEL22"
 
 const provider = new HDWalletProvider(privateKey, rpcUrl)
 const web3 = new Web3(provider)

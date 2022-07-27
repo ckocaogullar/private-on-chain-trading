@@ -9,7 +9,8 @@ ip addr add 127.0.0.1/32 dev lo
 ip link set dev lo up
 
 # Add a hosts record, pointing target site calls to local loopback
-echo "127.0.0.1   eth-ropsten.alchemyapi.io" >> /etc/hosts
+# echo "127.0.0.1   eth-ropsten.alchemyapi.io" >> /etc/hosts
+echo "127.0.0.1   eth-goerli.g.alchemy.com" >> /etc/hosts
 
 touch /app/libnsm.so
 
